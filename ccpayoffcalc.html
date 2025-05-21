@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Payoff Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 480px; /* Consistent width with other calculators */
+        }
+        /* Reusing styles from debtpayoffcalc as they are similar */
+        .results p.label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .results .saved-highlight {
+            color: #28a745; /* Green for savings */
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Credit Card Payoff Calculator</h1>
+        <p>See how quickly you can become debt-free and how much interest you can save on your credit card.</p>
+
+        <div class="input-group">
+            <label for="currentBalance">Current Credit Card Balance ($):</label>
+            <input type="number" id="currentBalance" value="5000">
+        </div>
+        <div class="input-group">
+            <label for="annualInterestRate">Annual Interest Rate (% APR):</label>
+            <input type="number" id="annualInterestRate" value="20" step="0.01">
+        </div>
+        <div class="input-group">
+            <label for="monthlyPayment">Monthly Payment ($):</label>
+            <input type="number" id="monthlyPayment" value="100">
+        </div>
+        <div class="input-group">
+            <label for="extraMonthlyPayment">Extra Monthly Payment ($):</label>
+            <input type="number" id="extraMonthlyPayment" value="0">
+        </div>
+
+        <button id="calculateBtn">Calculate Payoff</button>
+
+        <div class="results">
+            <h2>Results:</h2>
+
+            <h3>With Current Monthly Payment ($<span id="displayMinPayment">0.00</span>):</h3>
+            <p class="label">Time to Payoff:</p>
+            <p class="value" id="minPaymentTime">0 Years, 0 Months</p>
+            <p class="label">Total Interest Paid:</p>
+            <p class="value" id="minPaymentInterest">$0.00</p>
+            <p class="label">Total Amount Paid:</p>
+            <p class="value" id="minPaymentTotal">$0.00</p>
+
+
+            <h3>With Total Monthly Payment ($<span id="displayTotalPayment">0.00</span>):</h3>
+            <p class="label">New Time to Payoff:</p>
+            <p class="value" id="extraPaymentTime">0 Years, 0 Months</p>
+            <p class="label">New Total Interest Paid:</p>
+            <p class="value" id="extraPaymentInterest">$0.00</p>
+            <p class="label">New Total Amount Paid:</p>
+            <p class="value" id="extraPaymentTotal">$0.00</p>
+
+            <hr>
+
+            <h3>Total Savings:</h3>
+            <p class="label">Interest Saved:</p>
+            <p class="value saved-highlight" id="interestSaved">$0.00</p>
+            <p class="label">Time Saved:</p>
+            <p class="value saved-highlight" id="timeSaved">0 Years, 0 Months</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="ccpayoffcalc-script.js"></script>
+</body>
+</html>
