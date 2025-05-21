@@ -28,7 +28,7 @@
             padding: 50px 30px; /* More vertical padding */
             border-radius: 15px; /* Softer rounded corners */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Stronger, more prominent shadow */
-            max-width: 700px; /* Increased max-width for better layout */
+            max-width: 900px; /* Wider container for categories */
             width: 100%;
             text-align: center;
             backdrop-filter: blur(5px); /* Subtle blur effect on background */
@@ -52,13 +52,27 @@
             font-weight: 400;
         }
 
-        /* Button Group Layout */
+        /* Category Section Styling */
+        .category-section {
+            margin-bottom: 40px;
+            text-align: left; /* Align category title and buttons to the left */
+        }
+
+        .category-section h2 {
+            color: #4a4a4a;
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee; /* Subtle separator */
+        }
+
+        /* Button Group Layout within categories */
         .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid; /* Use CSS Grid for flexible layout */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
             gap: 20px; /* Consistent gap between buttons */
-            margin-top: 40px; /* More space above buttons */
+            justify-content: center; /* Center buttons if there aren't enough to fill a row */
         }
 
         /* Calculator Link (Button) Styles */
@@ -76,9 +90,6 @@
             font-weight: 600; /* Semi-bold */
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); /* Softer shadow */
-            flex-grow: 1;
-            min-width: 280px; /* Ensure buttons don't get too small */
-            max-width: calc(50% - 10px); /* Adjust for gap */
             height: 70px; /* Fixed height for consistent look */
             box-sizing: border-box; /* Include padding in element's total width */
         }
@@ -102,8 +113,11 @@
             .container {
                 padding: 40px 20px;
             }
-            .calculator-link {
-                max-width: 100%; /* Stack buttons on small screens */
+            .category-section h2 {
+                font-size: 1.5em;
+            }
+            .button-group {
+                grid-template-columns: 1fr; /* Stack buttons on small screens */
             }
         }
 
@@ -126,26 +140,41 @@
     <div class="container">
         <h1>Your Financial Companion</h1>
         <p>Unlock smarter financial decisions with our easy-to-use calculators. Whether you're planning for a home, saving for the future, or tackling debt, we've got a tool to guide you.</p>
-        <p>Choose a calculator below to get started:</p>
-        <div class="button-group">
-            <a href="mortgagecalc.html" class="calculator-link">Mortgage Calculator</a>
-            <a href="hysacalc.html" class="calculator-link">High-Yield Savings Calculator</a>
-            <a href="rentvsbuycalc.html" class="calculator-link">Rent vs. Buy Calculator</a>
-            <a href="debtpayoffcalc.html" class="calculator-link">Debt Payoff Calculator</a>
-            <a href="loanpaymentcalc.html" class="calculator-link">General Loan Payment Calculator</a>
-            <a href="ccpayoffcalc.html" class="calculator-link">Credit Card Payoff Calculator</a>
-            <a href="compoundinterestcalc.html" class="calculator-link">Compound Interest Calculator</a>
-            <a href="retirementcalc.html" class="calculator-link">Retirement Savings Calculator</a>
-            <a href="collegesavingscalc.html" class="calculator-link">College Savings Calculator</a>
-            <a href="budgetcalc.html" class="calculator-link">Budget Calculator/Planner</a>
-            <a href="networthcalc.html" class="calculator-link">Net Worth Calculator</a>
-            <a href="inflationcalc.html" class="calculator-link">Inflation Calculator</a>
-            <a href="taxcalc.html" class="calculator-link">Simplified Tax Calculator</a>
-            <a href="savingsgoalcalc.html" class="calculator-link">Savings Goal Calculator</a>
-            <a href="amortizationcalc.html" class="calculator-link">Amortization Schedule Calculator</a>
-            <a href="emergencyfundcalc.html" class="calculator-link">Emergency Fund Calculator</a>
-            <a href="ruleof72calc.html" class="calculator-link">Rule of 72 Calculator</a>
-            <a href="annuityfvcalc.html" class="calculator-link">Annuity Future Value Calculator</a>
+
+        <div class="category-section">
+            <h2>Savings & Investments</h2>
+            <div class="button-group">
+                <a href="hysacalc.html" class="calculator-link">High-Yield Savings Calculator</a>
+                <a href="compoundinterestcalc.html" class="calculator-link">Compound Interest Calculator</a>
+                <a href="retirementcalc.html" class="calculator-link">Retirement Savings Calculator</a>
+                <a href="collegesavingscalc.html" class="calculator-link">College Savings Calculator</a>
+                <a href="savingsgoalcalc.html" class="calculator-link">Savings Goal Calculator</a>
+                <a href="annuityfvcalc.html" class="calculator-link">Annuity Future Value Calculator</a>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h2>Loans & Debt</h2>
+            <div class="button-group">
+                <a href="mortgagecalc.html" class="calculator-link">Mortgage Calculator</a>
+                <a href="loanpaymentcalc.html" class="calculator-link">General Loan Payment Calculator</a>
+                <a href="debtpayoffcalc.html" class="calculator-link">Debt Payoff Calculator</a>
+                <a href="ccpayoffcalc.html" class="calculator-link">Credit Card Payoff Calculator</a>
+                <a href="amortizationcalc.html" class="calculator-link">Amortization Schedule Calculator</a>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h2>Planning & Tools</h2>
+            <div class="button-group">
+                <a href="budgetcalc.html" class="calculator-link">Budget Calculator/Planner</a>
+                <a href="networthcalc.html" class="calculator-link">Net Worth Calculator</a>
+                <a href="rentvsbuycalc.html" class="calculator-link">Rent vs. Buy Calculator</a>
+                <a href="inflationcalc.html" class="calculator-link">Inflation Calculator</a>
+                <a href="taxcalc.html" class="calculator-link">Simplified Tax Calculator</a>
+                <a href="emergencyfundcalc.html" class="calculator-link">Emergency Fund Calculator</a>
+                <a href="ruleof72calc.html" class="calculator-link">Rule of 72 Calculator</a>
+            </div>
         </div>
     </div>
 </body>
