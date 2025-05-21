@@ -14,6 +14,10 @@
             <input type="number" id="loanAmount" value="200000">
         </div>
         <div class="input-group">
+            <label for="downPayment">Down Payment ($):</label>
+            <input type="number" id="downPayment" value="20000">
+        </div>
+        <div class="input-group">
             <label for="interestRate">Annual Interest Rate (%):</label>
             <input type="number" id="interestRate" value="4.5" step="0.01">
         </div>
@@ -21,13 +25,31 @@
             <label for="loanTerm">Loan Term (Years):</label>
             <input type="number" id="loanTerm" value="30">
         </div>
+        <div class="input-group">
+            <label for="propertyTax">Annual Property Tax ($):</label>
+            <input type="number" id="propertyTax" value="2400">
+        </div>
+        <div class="input-group">
+            <label for="hoa">Monthly HOA Fees ($):</label>
+            <input type="number" id="hoa" value="100">
+        </div>
         <button id="calculateBtn">Calculate Mortgage</button>
         <div class="results">
-            <h2>Your Monthly Payment:</h2>
+            <h2>Your Estimated Monthly Payment:</h2>
             <p id="monthlyPayment">$0.00</p>
+            <h3>(Principal & Interest)</h3>
+            <h2>Estimated Monthly Property Tax:</h2>
+            <p id="monthlyPropertyTax">$0.00</p>
+            <h2>Monthly HOA Fees:</h2>
+            <p id="monthlyHoa">$0.00</p>
+            <h2>Estimated Monthly PMI:</h2>
+            <p id="monthlyPmi">$0.00</p>
+            <hr>
+            <h2>Total Estimated Monthly Payment:</h2>
+            <p id="totalMonthlyPayment">$0.00</p>
             <h2>Total Interest Paid:</h2>
             <p id="totalInterest">$0.00</p>
-            <h2>Total Cost of Loan:</h2>
+            <h2>Total Cost of Loan (with Interest):</h2>
             <p id="totalCost">$0.00</p>
         </div>
     </div>
