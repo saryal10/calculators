@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amortization Schedule Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 900px; /* Wider to accommodate the table */
+            padding: 30px;
+        }
+
+        .results p.label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results .monthly-payment {
+            color: #28a745; /* Green for monthly payment */
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        /* Amortization Table Styles */
+        #amortizationSchedule {
+            margin-top: 30px;
+            overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            max-height: 500px; /* Limit height and add scroll */
+            overflow-y: auto;
+        }
+
+        #amortizationTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            min-width: 600px; /* Ensure table doesn't get too narrow */
+        }
+
+        #amortizationTable th,
+        #amortizationTable td {
+            border: 1px solid #ddd;
+            padding: 10px 8px;
+            text-align: right; /* Align numbers to the right */
+        }
+
+        #amortizationTable th {
+            background-color: #e9ecef;
+            text-align: center;
+            font-weight: 600;
+            position: sticky; /* Make headers stick when scrolling */
+            top: 0;
+            z-index: 1; /* Ensure headers are above content */
+        }
+        #amortizationTable td:first-child {
+            text-align: center; /* Payment number centered */
+        }
+
+        #amortizationTable tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #amortizationTable tbody tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e9ecef !important; /* Ensure it stands out */
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Amortization Schedule Calculator</h1>
+        <p>Generate a detailed payment schedule for your loan, showing principal and interest breakdown for each payment.</p>
+
+        <div class="input-group">
+            <label for="loanAmount">Loan Amount ($):</label>
+            <input type="number" id="loanAmount" value="200000" min="0">
+        </div>
+        <div class="input-group">
+            <label for="annualInterestRate">Annual Interest Rate (%):</label>
+            <input type="number" id="annualInterestRate" value="4.5" step="0.01" min="0">
+        </div>
+        <div class="input-group">
+            <label for="loanTermYears">Loan Term (Years):</label>
+            <input type="number" id="loanTermYears" value="30" min="1">
+        </div>
+
+        <button id="calculateBtn">Generate Schedule</button>
+
+        <div class="results">
+            <h2>Loan Summary:</h2>
+            <p class="label">Estimated Monthly Payment:</p>
+            <p id="monthlyPayment" class="value monthly-payment">$0.00</p>
+        </div>
+
+        <div id="amortizationSchedule" style="display: none;">
+            <h2>Amortization Schedule:</h2>
+            </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="amortizationcalc-script.js"></script>
+</body>
+</html>
