@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Worth Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        /* General container and section styles reused from budgetcalc.html */
+        .calculator-container {
+            max-width: 600px; /* Wider for more content */
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 1.6em;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .asset-item, .liability-item {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between elements in a row */
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .asset-item label, .liability-item label {
+            flex: 2; /* Label takes more space */
+            text-align: right; /* Align label text to the right */
+            font-size: 0.95em;
+            color: #555;
+            padding-right: 10px;
+        }
+
+        .asset-item input[type="text"],
+        .liability-item input[type="text"] {
+            flex: 3; /* Name input takes more space */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .asset-item input[type="number"],
+        .liability-item input[type="number"] {
+            flex: 2; /* Value input takes proportional space */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            text-align: right; /* Numbers align right */
+        }
+
+        /* Reusing common button styles */
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.8em;
+            white-space: nowrap; /* Prevent button text from wrapping */
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        .add-item-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            font-size: 1em;
+            width: 100%; /* Make add button full width */
+            box-sizing: border-box;
+        }
+        .add-item-btn:hover {
+            background-color: #218838;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .results p.label {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.8em; /* Larger for totals */
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results #netWorth.positive {
+            color: #28a745; /* Green for positive net worth */
+        }
+        .results #netWorth.negative {
+            color: #dc3545; /* Red for negative net worth */
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Net Worth Calculator</h1>
+        <p>Calculate your financial standing by summing your assets and subtracting your liabilities.</p>
+
+        <h2 class="section-title">Assets (What you own)</h2>
+        <div id="assetInputs">
+            <div class="asset-item">
+                <label>Cash & Savings:</label>
+                <input type="text" value="Checking/Savings">
+                <input type="number" class="asset-value" value="5000">
+                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+            </div>
+            <div class="asset-item">
+                <label>Investments:</label>
+                <input type="text" value="Stocks/Bonds/Mutual Funds">
+                <input type="number" class="asset-value" value="25000">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="asset-item">
+                <label>Retirement Accounts:</label>
+                <input type="text" value="401k/IRA">
+                <input type="number" class="asset-value" value="50000">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="asset-item">
+                <label>Real Estate:</label>
+                <input type="text" value="Primary Residence (Market Value)">
+                <input type="number" class="asset-value" value="300000">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="asset-item">
+                <label>Vehicles:</label>
+                <input type="text" value="Car/Motorcycle (Market Value)">
+                <input type="number" class="asset-value" value="15000">
+                <button class="remove-btn">Remove</button>
+            </div>
+        </div>
+        <button id="addAssetBtn" class="add-item-btn">Add Another Asset</button>
+
+        <h2 class="section-title">Liabilities (What you owe)</h2>
+        <div id="liabilityInputs">
+            <div class="liability-item">
+                <label>Mortgage:</label>
+                <input type="text" value="Primary Home Mortgage">
+                <input type="number" class="liability-value" value="200000">
+                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+            </div>
+            <div class="liability-item">
+                <label>Student Loans:</label>
+                <input type="text" value="Student Loans">
+                <input type="number" class="liability-value" value="30000">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="liability-item">
+                <label>Car Loans:</label>
+                <input type="text" value="Car Loan">
+                <input type="number" class="liability-value" value="10000">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="liability-item">
+                <label>Credit Card Debt:</label>
+                <input type="text" value="Credit Card Debt">
+                <input type="number" class="liability-value" value="5000">
+                <button class="remove-btn">Remove</button>
+            </div>
+        </div>
+        <button id="addLiabilityBtn" class="add-item-btn">Add Another Liability</button>
+
+        <div class="results">
+            <h2>Summary:</h2>
+            <p class="label">Total Assets:</p>
+            <p id="totalAssets" class="value">$0.00</p>
+
+            <p class="label">Total Liabilities:</p>
+            <p id="totalLiabilities" class="value">$0.00</p>
+
+            <p class="label">Your Net Worth:</p>
+            <p id="netWorth" class="value positive">$0.00</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="networthcalc-script.js"></script>
+</body>
+</html>
