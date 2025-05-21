@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent vs. Buy Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific styles for Rent vs Buy calculator if needed, otherwise rely on style.css */
+        .calculator-container {
+            max-width: 600px; /* Wider container for more inputs */
+        }
+        .input-section {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background-color: #fdfdfd;
+        }
+        .input-section h2 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .results p {
+            margin-bottom: 5px;
+        }
+        .results .highlight {
+            color: #28a745; /* Green for better option */
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+        .results .warning {
+            color: #dc3545; /* Red for less optimal option */
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+        .results hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Rent vs. Buy Calculator</h1>
+
+        <div class="input-group">
+            <label for="comparisonPeriod">Comparison Period (Years):</label>
+            <input type="number" id="comparisonPeriod" value="10" min="1" max="50">
+        </div>
+
+        <div class="input-section">
+            <h2>Renting Details</h2>
+            <div class="input-group">
+                <label for="currentMonthlyRent">Current Monthly Rent ($):</label>
+                <input type="number" id="currentMonthlyRent" value="1500">
+            </div>
+            <div class="input-group">
+                <label for="annualRentIncrease">Annual Rent Increase (%):</label>
+                <input type="number" id="annualRentIncrease" value="3" step="0.1">
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>Buying Details</h2>
+            <div class="input-group">
+                <label for="homePurchasePrice">Home Purchase Price ($):</label>
+                <input type="number" id="homePurchasePrice" value="300000">
+            </div>
+            <div class="input-group">
+                <label for="downPaymentAmount">Down Payment ($):</label>
+                <input type="number" id="downPaymentAmount" value="30000">
+            </div>
+            <div class="input-group">
+                <label for="annualInterestRate">Annual Mortgage Interest Rate (%):</label>
+                <input type="number" id="annualInterestRate" value="4.5" step="0.01">
+            </div>
+            <div class="input-group">
+                <label for="loanTermYears">Mortgage Term (Years):</label>
+                <input type="number" id="loanTermYears" value="30">
+            </div>
+            <div class="input-group">
+                <label for="closingCosts">Closing Costs ($):</label>
+                <input type="number" id="closingCosts" value="9000">
+            </div>
+            <div class="input-group">
+                <label for="annualPropertyTax">Annual Property Tax ($):</label>
+                <input type="number" id="annualPropertyTax" value="3600">
+            </div>
+            <div class="input-group">
+                <label for="annualHomeInsurance">Annual Home Insurance ($):</label>
+                <input type="number" id="annualHomeInsurance" value="1200">
+            </div>
+            <div class="input-group">
+                <label for="monthlyHoa">Monthly HOA Fees ($):</label>
+                <input type="number" id="monthlyHoa" value="50">
+            </div>
+            <div class="input-group">
+                <label for="annualMaintenance">Annual Maintenance & Repairs ($):</label>
+                <input type="number" id="annualMaintenance" value="1500">
+            </div>
+            <div class="input-group">
+                <label for="annualAppreciationRate">Annual Home Appreciation Rate (%):</label>
+                <input type="number" id="annualAppreciationRate" value="2" step="0.1">
+            </div>
+        </div>
+
+        <button id="calculateBtn">Compare Options</button>
+
+        <div class="results">
+            <h2>Results Over <span id="displayComparisonPeriod">10</span> Years:</h2>
+            <p>Total Renting Cost: <span id="totalRentingCost">$0.00</span></p>
+            <p>Total Buying Cost (Net of Equity): <span id="totalBuyingCost">$0.00</span></p>
+            <hr>
+            <p id="recommendation" class="highlight">Choose an option to compare!</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="rentvsbuycalc-script.js"></script>
+</body>
+</html>
