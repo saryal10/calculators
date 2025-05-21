@@ -3,93 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Calculator for Your Day to Day Life</title>
+    <title>Your Financial Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* General Body Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif; /* Modern, clean font */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #f4f4f4;
             margin: 0;
-            text-align: center;
+            background: linear-gradient(to right bottom, #6a11cb, #2575fc); /* Gradient background */
+            color: #333; /* Default text color */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            padding: 20px; /* Add some padding around the edges */
+            box-sizing: border-box; /* Include padding in element's total width */
         }
 
+        /* Main Container Styling */
         .container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 90%;
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            padding: 50px 30px; /* More vertical padding */
+            border-radius: 15px; /* Softer rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Stronger, more prominent shadow */
+            max-width: 700px; /* Increased max-width for better layout */
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(5px); /* Subtle blur effect on background */
+            -webkit-backdrop-filter: blur(5px); /* For Safari */
         }
 
+        /* Heading Styles */
         h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+            color: #333; /* Darker text for contrast */
+            margin-bottom: 20px;
+            font-size: 2.8em; /* Larger heading */
+            font-weight: 700; /* Bolder font weight */
+            line-height: 1.2;
         }
 
         p {
-            color: #666;
+            color: #555;
             font-size: 1.1em;
             line-height: 1.6;
-            margin-bottom: 25px;
+            margin-bottom: 35px; /* More space below paragraphs */
+            font-weight: 400;
         }
 
+        /* Button Group Layout */
         .button-group {
             display: flex;
-            flex-wrap: wrap; /* Allow buttons to wrap to next line */
-            justify-content: center; /* Center buttons */
-            gap: 20px; /* Space between buttons */
-            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px; /* Consistent gap between buttons */
+            margin-top: 40px; /* More space above buttons */
         }
 
+        /* Calculator Link (Button) Styles */
         .calculator-link {
-            display: inline-block;
-            background-color: #007bff;
+            display: flex; /* Use flexbox for centering content */
+            align-items: center; /* Center text vertically */
+            justify-content: center; /* Center text horizontally */
+            background-color: #2575fc; /* Vibrant blue */
             color: white;
-            padding: 15px 30px;
+            padding: 18px 25px; /* Larger padding for a more substantial button */
             border: none;
-            border-radius: 5px;
+            border-radius: 8px; /* Slightly more rounded */
             text-decoration: none;
-            font-size: 1.2em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-            flex-grow: 1; /* Allow buttons to grow */
-            min-width: 250px; /* Ensure buttons don't get too small */
-            max-width: 48%; /* Adjust for spacing when row */
-            box-sizing: border-box; /* Include padding/border in element's total width/height */
+            font-size: 1.15em; /* Slightly larger text */
+            font-weight: 600; /* Semi-bold */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); /* Softer shadow */
+            flex-grow: 1;
+            min-width: 280px; /* Ensure buttons don't get too small */
+            max-width: calc(50% - 10px); /* Adjust for gap */
+            height: 70px; /* Fixed height for consistent look */
         }
 
         .calculator-link:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-5px); /* More pronounced lift effect */
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4); /* Enhanced shadow on hover */
         }
 
         .calculator-link:active {
             transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
-        /* Media query for larger screens to place buttons side-by-side (up to 2 per row) */
-        @media (min-width: 600px) {
-            .button-group {
-                flex-direction: row; /* Place buttons horizontally */
-                justify-content: center;
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .container {
+                padding: 40px 20px;
             }
             .calculator-link {
-                max-width: 48%; /* Two buttons per row with gap */
+                max-width: 100%; /* Stack buttons on small screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            p {
+                font-size: 1em;
+            }
+            .calculator-link {
+                font-size: 1em;
+                padding: 15px 20px;
+                min-width: unset; /* Remove min-width to allow shrinking */
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Financial Calculator for Your Day to Day Life</h1>
-        <p>Welcome! This page provides access to financial tools designed to help you make informed decisions.</p>
-        <p>Choose a calculator below:</p>
+        <h1>Your Financial Companion</h1>
+        <p>Unlock smarter financial decisions with our easy-to-use calculators. Whether you're planning for a home, saving for the future, or tackling debt, we've got a tool to guide you.</p>
+        <p>Choose a calculator below to get started:</p>
         <div class="button-group">
             <a href="mortgagecalc.html" class="calculator-link">Mortgage Calculator</a>
             <a href="hysacalc.html" class="calculator-link">High-Yield Savings Calculator</a>
