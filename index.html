@@ -41,7 +41,8 @@
 
         .button-group {
             display: flex;
-            flex-direction: column; /* Stack buttons vertically on smaller screens */
+            flex-wrap: wrap; /* Allow buttons to wrap to next line */
+            justify-content: center; /* Center buttons */
             gap: 20px; /* Space between buttons */
             margin-top: 30px;
         }
@@ -58,6 +59,9 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
             box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
             flex-grow: 1; /* Allow buttons to grow */
+            min-width: 250px; /* Ensure buttons don't get too small */
+            max-width: 48%; /* Adjust for spacing when row */
+            box-sizing: border-box; /* Include padding/border in element's total width/height */
         }
 
         .calculator-link:hover {
@@ -69,17 +73,16 @@
             transform: translateY(0);
         }
 
-        /* Media query for larger screens to place buttons side-by-side */
-        @media (min-width: 768px) {
+        /* Media query for larger screens to place buttons side-by-side (up to 2 per row) */
+        @media (min-width: 600px) {
             .button-group {
                 flex-direction: row; /* Place buttons horizontally */
                 justify-content: center;
             }
             .calculator-link {
-                max-width: 48%; /* Adjust for spacing */
+                max-width: 48%; /* Two buttons per row with gap */
             }
         }
-
     </style>
 </head>
 <body>
@@ -91,6 +94,7 @@
             <a href="mortgagecalc.html" class="calculator-link">Mortgage Calculator</a>
             <a href="hysacalc.html" class="calculator-link">High-Yield Savings Calculator</a>
             <a href="rentvsbuycalc.html" class="calculator-link">Rent vs. Buy Calculator</a>
+            <a href="debtpayoffcalc.html" class="calculator-link">Debt Payoff Calculator</a>
         </div>
     </div>
 </body>
