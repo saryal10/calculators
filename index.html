@@ -39,6 +39,13 @@
             margin-bottom: 25px;
         }
 
+        .button-group { /* New class for button arrangement */
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically on smaller screens */
+            gap: 20px; /* Space between buttons */
+            margin-top: 30px;
+        }
+
         .calculator-link {
             display: inline-block;
             background-color: #007bff;
@@ -50,6 +57,7 @@
             font-size: 1.2em;
             transition: background-color 0.3s ease, transform 0.2s ease;
             box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+            flex-grow: 1; /* Allow buttons to grow */
         }
 
         .calculator-link:hover {
@@ -60,14 +68,29 @@
         .calculator-link:active {
             transform: translateY(0);
         }
+
+        /* Media query for larger screens to place buttons side-by-side */
+        @media (min-width: 768px) {
+            .button-group {
+                flex-direction: row; /* Place buttons horizontally */
+                justify-content: center;
+            }
+            .calculator-link {
+                max-width: 48%; /* Adjust for spacing */
+            }
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Financial Calculator for Your Day to Day Life</h1>
         <p>Welcome! This page provides access to financial tools designed to help you make informed decisions.</p>
-        <p>Click the button below to access our Mortgage Calculator:</p>
-        <a href="mortgagecalc.html" class="calculator-link">Go to Mortgage Calculator</a>
+        <p>Choose a calculator below:</p>
+        <div class="button-group">
+            <a href="mortgagecalc.html" class="calculator-link">Mortgage Calculator</a>
+            <a href="hysacalc.html" class="calculator-link">High-Yield Savings Calculator</a>
+        </div>
     </div>
 </body>
 </html>
