@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Income Tax Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 480px;
+        }
+        .results p.label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results .tax-amount {
+            color: #dc3545; /* Red for tax amount */
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .results .after-tax-income {
+            color: #28a745; /* Green for after-tax income */
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .disclaimer {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Simplified Income Tax Calculator</h1>
+        <p>Estimate your annual income tax based on a hypothetical progressive tax bracket system.</p>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This calculator uses simplified, hypothetical tax brackets and does NOT reflect actual tax laws (e.g., US Federal, State, or Local taxes). Tax laws are complex and change frequently. This tool is for illustrative purposes only. Consult a qualified tax professional for accurate tax advice.
+        </div>
+
+        <div class="input-group">
+            <label for="grossIncome">Gross Annual Income ($):</label>
+            <input type="number" id="grossIncome" value="60000">
+        </div>
+        <div class="input-group">
+            <label for="totalDeductions">Total Deductions ($):</label>
+            <input type="number" id="totalDeductions" value="14600"> </div>
+
+        <button id="calculateBtn">Calculate Estimated Tax</button>
+
+        <div class="results">
+            <h2>Your Tax Estimate:</h2>
+            <p class="label">Taxable Income:</p>
+            <p id="taxableIncome" class="value">$0.00</p>
+
+            <p class="label">Estimated Income Tax:</p>
+            <p id="estimatedTax" class="value tax-amount">$0.00</p>
+
+            <p class="label">After-Tax Income:</p>
+            <p id="afterTaxIncome" class="value after-tax-income">$0.00</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="taxcalc-script.js"></script>
+</body>
+</html>
