@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Savings Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 480px;
+        }
+        .results p.label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results .highlight-balance {
+            color: #28a745; /* Green for positive growth */
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .results .nominal-balance {
+            color: #ff9800; /* Orange for nominal value */
+        }
+        .results .real-balance {
+            color: #28a745; /* Green for real value */
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Retirement Savings Calculator</h1>
+        <p>Project your future retirement balance and see its value in today's dollars.</p>
+
+        <div class="input-group">
+            <label for="currentAge">Current Age:</label>
+            <input type="number" id="currentAge" value="30" min="18" max="90">
+        </div>
+        <div class="input-group">
+            <label for="retirementAge">Desired Retirement Age:</label>
+            <input type="number" id="retirementAge" value="65" min="18" max="90">
+        </div>
+        <div class="input-group">
+            <label for="currentSavings">Current Retirement Savings ($):</label>
+            <input type="number" id="currentSavings" value="10000">
+        </div>
+        <div class="input-group">
+            <label for="annualContribution">Annual Contribution ($):</label>
+            <input type="number" id="annualContribution" value="6000">
+        </div>
+        <div class="input-group">
+            <label for="annualReturnRate">Annual Rate of Return (%):</label>
+            <input type="number" id="annualReturnRate" value="7" step="0.01">
+        </div>
+        <div class="input-group">
+            <label for="annualInflationRate">Annual Inflation Rate (%):</label>
+            <input type="number" id="annualInflationRate" value="3" step="0.01">
+        </div>
+
+        <button id="calculateBtn">Project Savings</button>
+
+        <div class="results">
+            <h2>Projected Balance:</h2>
+            <p class="label">Years Until Retirement:</p>
+            <p id="yearsUntilRetirement" class="value">0</p>
+
+            <p class="label">Total Principal Invested:</p>
+            <p id="totalPrincipalInvested" class="value">$0.00</p>
+
+            <p class="label">Total Interest Earned:</p>
+            <p id="totalInterestEarned" class="value">$0.00</p>
+
+            <p class="label">Projected Balance (Future Dollars):</p>
+            <p id="projectedNominalBalance" class="value nominal-balance highlight-balance">$0.00</p>
+
+            <p class="label">Projected Balance (Today's Dollars, adjusted for inflation):</p>
+            <p id="projectedRealBalance" class="value real-balance highlight-balance">$0.00</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="retirementcalc-script.js"></script>
+</body>
+</html>
