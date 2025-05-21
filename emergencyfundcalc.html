@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Fund Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 600px;
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .expense-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .expense-item label {
+            flex: 2;
+            text-align: right;
+            font-size: 0.95em;
+            color: #555;
+            padding-right: 10px;
+        }
+
+        .expense-item input[type="text"] {
+            flex: 3;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .expense-item input[type="number"] {
+            flex: 2;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        .add-item-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .add-item-btn:hover {
+            background-color: #218838;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .results p.label {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results #recommendedEmergencyFund {
+            color: #28a745; /* Green for recommended amount */
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Emergency Fund Calculator</h1>
+        <p>Determine how much you need to save for your emergency fund, based on your essential monthly expenses.</p>
+
+        <div class="input-group">
+            <label for="desiredCoverageMonths">Desired Coverage (Months):</label>
+            <input type="number" id="desiredCoverageMonths" value="3" min="1" max="12">
+            <p class="hint">Common recommendations are 3-6 months.</p>
+        </div>
+
+        <h2 class="section-title">Your Essential Monthly Expenses</h2>
+        <div id="expenseInputs">
+            <div class="expense-item">
+                <label>Rent/Mortgage:</label>
+                <input type="text" value="Rent/Mortgage">
+                <input type="number" class="expense-value" value="1200">
+                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+            </div>
+            <div class="expense-item">
+                <label>Utilities:</label>
+                <input type="text" value="Utilities (Electricity, Water, Gas)">
+                <input type="number" class="expense-value" value="200">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="expense-item">
+                <label>Groceries:</label>
+                <input type="text" value="Groceries">
+                <input type="number" class="expense-value" value="400">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="expense-item">
+                <label>Transportation:</label>
+                <input type="text" value="Transportation (Gas, Public Transit)">
+                <input type="number" class="expense-value" value="150">
+                <button class="remove-btn">Remove</button>
+            </div>
+            <div class="expense-item">
+                <label>Insurance:</label>
+                <input type="text" value="Insurance (Health, Car, etc.)">
+                <input type="number" class="expense-value" value="100">
+                <button class="remove-btn">Remove</button>
+            </div>
+        </div>
+        <button id="addExpenseBtn" class="add-item-btn">Add Another Essential Expense</button>
+
+        <div class="results">
+            <h2>Summary:</h2>
+            <p class="label">Total Monthly Essential Expenses:</p>
+            <p id="totalMonthlyExpenses" class="value">$0.00</p>
+
+            <p class="label">Recommended Emergency Fund:</p>
+            <p id="recommendedEmergencyFund" class="value">$0.00</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="emergencyfundcalc-script.js"></script>
+</body>
+</html>
