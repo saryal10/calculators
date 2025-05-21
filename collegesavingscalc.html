@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Savings Calculator</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .calculator-container {
+            max-width: 480px;
+        }
+        .results p.label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .results p.value {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .results .highlight-positive {
+            color: #28a745; /* Green for positive outcome (surplus) */
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .results .highlight-negative {
+            color: #dc3545; /* Red for negative outcome (gap) */
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>College Savings Calculator</h1>
+        <p>Project your future college costs and see if your savings plan will meet the goal.</p>
+
+        <div class="input-group">
+            <label for="childCurrentAge">Child's Current Age (Years):</label>
+            <input type="number" id="childCurrentAge" value="0" min="0" max="17">
+        </div>
+        <div class="input-group">
+            <label for="collegeStartAge">Age Child Will Start College:</label>
+            <input type="number" id="collegeStartAge" value="18" min="15" max="25">
+        </div>
+        <div class="input-group">
+            <label for="currentSavings">Current College Savings ($):</label>
+            <input type="number" id="currentSavings" value="0">
+        </div>
+        <div class="input-group">
+            <label for="annualContribution">Annual Savings Contribution ($):</label>
+            <input type="number" id="annualContribution" value="1200">
+        </div>
+        <div class="input-group">
+            <label for="currentAnnualCollegeCost">Current Annual College Cost ($):</label>
+            <input type="number" id="currentAnnualCollegeCost" value="20000">
+        </div>
+        <div class="input-group">
+            <label for="collegeCostInflationRate">Annual College Cost Inflation (%):</label>
+            <input type="number" id="collegeCostInflationRate" value="5" step="0.01">
+        </div>
+        <div class="input-group">
+            <label for="investmentReturnRate">Annual Investment Return (%):</label>
+            <input type="number" id="investmentReturnRate" value="7" step="0.01">
+        </div>
+        <div class="input-group">
+            <label for="yearsInCollege">Years in College:</label>
+            <input type="number" id="yearsInCollege" value="4" min="1" max="10">
+        </div>
+
+        <button id="calculateBtn">Project College Plan</button>
+
+        <div class="results">
+            <h2>Your College Projections:</h2>
+            <p class="label">Years Until College Starts:</p>
+            <p id="yearsUntilCollege" class="value">0</p>
+
+            <p class="label">Projected Total Cost of College:</p>
+            <p id="projectedTotalCollegeCost" class="value">$0.00</p>
+
+            <p class="label">Projected Savings at College Start:</p>
+            <p id="projectedSavingsAtStart" class="value">$0.00</p>
+
+            <hr>
+
+            <p class="label">Total Principal Saved:</p>
+            <p id="totalPrincipalSaved" class="value">$0.00</p>
+
+            <p class="label">Total Interest Earned:</p>
+            <p id="totalInterestEarned" class="value">$0.00</p>
+
+            <p class="label">Savings Gap / Surplus:</p>
+            <p id="savingsGapSurplus" class="value highlight-positive">$0.00</p>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+    </div>
+    <script src="collegesavingscalc-script.js"></script>
+</body>
+</html>
