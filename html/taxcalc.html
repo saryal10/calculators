@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simplified Income Tax Calculator</title>
-    <link rel="stylesheet" href="style.css"> <style>
+    <link rel="stylesheet" href="../style.css"> 
+    <style>
+        /* All the CSS rules for this specific calculator go here */
         .calculator-container {
             max-width: 480px;
         }
@@ -58,7 +60,8 @@
         </div>
         <div class="input-group">
             <label for="totalDeductions">Total Deductions ($):</label>
-            <input type="number" id="totalDeductions" value="14600"> </div>
+            <input type="number" id="totalDeductions" value="14600"> 
+        </div>
 
         <button id="calculateBtn">Calculate Estimated Tax</button>
 
@@ -73,8 +76,8 @@
             <p class="label">After-Tax Income:</p>
             <p id="afterTaxIncome" class="value after-tax-income">$0.00</p>
         </div>
-        <a href="index.html" class="back-link">← Back to Main Calculators</a>
+        <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    <script src="scripts/taxcalc-script.js"></script>
+    <script src="../../scripts/taxcalc-script.js"></script>
 </body>
 </html>
