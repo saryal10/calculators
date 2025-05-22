@@ -103,57 +103,93 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // --- Calculate Buying Costs ---
-        let totalBuyingCost = 0;
+        let totalBuyingExpenses = 0; // This will accumulate out-of-pocket expenses
+        let totalPrincipalPaid = 0; // To track equity built through mortgage payments
+        let currentLoanBalance = homePurchasePrice - downPaymentAmount;
 
         // Initial Costs
-        totalBuyingCost += downPaymentAmount;
-        totalBuyingCost += closingCosts;
+        totalBuyingExpenses += downPaymentAmount; // Down payment is an upfront cost
+        totalBuyingExpenses += closingCosts;
 
         // Mortgage Principal & Interest (P&I)
         const principal = homePurchasePrice - downPaymentAmount;
         const monthlyInterestRate = annualInterestRate / 12;
-        const numberOfPayments = loanTermYears * 12;
-        let monthlyPrincipalInterest = 0;
+        const numberOfPaymentsTotal = loanTermYears * 12;
+        let monthlyPayment = 0;
 
         if (monthlyInterestRate === 0) {
-            monthlyPrincipalInterest = principal / numberOfPayments;
+            monthlyPayment = principal / numberOfPaymentsTotal; // Avoid division by zero for 0% interest
         } else {
-            monthlyPrincipalInterest = principal * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+            monthlyPayment = principal * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPaymentsTotal)) / (Math.pow(1 + monthlyInterestRate, numberOfPaymentsTotal) - 1);
         }
 
         // PMI Calculation (if down payment is less than 20%)
         let monthlyPmi = 0;
         if ((downPaymentAmount / homePurchasePrice) < 0.20) {
-            // Using the same rule as your mortgage calculator: $100 per $100k borrowed annually, divided by 12 for monthly
-            monthlyPmi = (Math.ceil(principal / 100000) * 100) / 12;
+            monthlyPmi = (Math.ceil(principal / 100000) * 100) / 12; // $100 per $100k borrowed annually, divided by 12
         }
 
         // Accumulate monthly costs over the comparison period
         for (let month = 1; month <= comparisonPeriodYears * 12; month++) {
-            totalBuyingCost += monthlyPrincipalInterest;
-            totalBuyingCost += annualPropertyTax / 12;
-            totalBuyingCost += annualHomeInsurance / 12;
-            totalBuyingCost += monthlyHoa;
-            totalBuyingCost += annualMaintenance / 12;
-            totalBuyingCost += monthlyPmi;
+            // Calculate interest and principal portion for the current month
+            const interestPayment = currentLoanBalance * monthlyInterestRate;
+            let principalPayment = monthlyPayment - interestPayment;
+
+            // Ensure principal payment doesn't exceed remaining balance
+            if (principalPayment > currentLoanBalance) {
+                principalPayment = currentLoanBalance;
+            }
+
+            // Add costs
+            totalBuyingExpenses += monthlyPayment; // P&I
+            totalBuyingExpenses += annualPropertyTax / 12;
+            totalBuyingExpenses += annualHomeInsurance / 12;
+            totalBuyingExpenses += monthlyHoa;
+            totalBuyingExpenses += annualMaintenance / 12;
+            totalBuyingExpenses += monthlyPmi;
+
+            // Update loan balance and total principal paid
+            currentLoanBalance -= principalPayment;
+            totalPrincipalPaid += principalPayment;
+
+            // Stop if loan is paid off within comparison period
+            if (currentLoanBalance <= 0) {
+                currentLoanBalance = 0; // Ensure it doesn't go negative
+                monthlyPayment = 0; // No more mortgage payments
+                monthlyPmi = 0; // No more PMI
+            }
+
+             // Stop if loan term ends
+             if (month >= numberOfPaymentsTotal) {
+                monthlyPayment = 0;
+                monthlyPmi = 0;
+             }
         }
 
-        // Account for Home Equity / Appreciation (reduces the net cost of buying)
+        // Calculate estimated home value at the end of the period
         const estimatedHomeValueAtEnd = homePurchasePrice * Math.pow(1 + annualAppreciationRate, comparisonPeriodYears);
-        totalBuyingCost -= estimatedHomeValueAtEnd; // Subtract the value of the asset at the end
+        const totalAppreciation = estimatedHomeValueAtEnd - homePurchasePrice;
+
+        // Calculate the *net* cost of buying
+        // Total expenses incurred MINUS the value gained from equity and appreciation
+        // (This assumes you recover the equity and appreciation if you sell at the end of the period)
+        let netBuyingCost = totalBuyingExpenses - totalPrincipalPaid - totalAppreciation;
+
+        // Note: This simplified calculation doesn't include potential selling costs (realtor fees, etc.)
+        // which would increase the netBuyingCost if included.
 
         // --- Display Results ---
         displayComparisonPeriodSpan.textContent = comparisonPeriodYears;
         totalRentingCostSpan.textContent = `$${totalRentingCost.toFixed(2)}`;
-        totalBuyingCostSpan.textContent = `$${totalBuyingCost.toFixed(2)}`;
+        totalBuyingCostSpan.textContent = `$${netBuyingCost.toFixed(2)}`; // Use netBuyingCost here
 
         // --- Recommendation ---
         recommendationParagraph.classList.remove('highlight', 'warning'); // Reset classes
 
-        if (totalRentingCost < totalBuyingCost) {
+        if (totalRentingCost < netBuyingCost) { // Compare with netBuyingCost
             recommendationParagraph.textContent = `Over ${comparisonPeriodYears} years, Renting is likely more cost-effective.`;
             recommendationParagraph.classList.add('highlight'); // Green for better
-        } else if (totalBuyingCost < totalRentingCost) {
+        } else if (netBuyingCost < totalRentingCost) { // Compare with netBuyingCost
             recommendationParagraph.textContent = `Over ${comparisonPeriodYears} years, Buying is likely more cost-effective.`;
             recommendationParagraph.classList.add('highlight'); // Green for better
         } else {
