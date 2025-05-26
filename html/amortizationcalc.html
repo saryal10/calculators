@@ -4,10 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amortization Schedule Calculator</title>
-    <link rel="stylesheet" href="style.css"> <style>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
         .calculator-container {
             max-width: 900px; /* Wider to accommodate the table */
             padding: 30px;
+        }
+
+        .results {
+            /* Modified to use flexbox for side-by-side layout */
+            display: flex;
+            justify-content: space-around; /* Distribute space between summary and chart */
+            align-items: flex-start; /* Align items to the top */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            margin-bottom: 20px;
+            gap: 20px; /* Space between flex items */
+        }
+
+        .summary-info {
+            text-align: left;
+            min-width: 250px; /* Ensure space for summary text */
         }
 
         .results p.label {
@@ -21,13 +38,22 @@
             color: #007bff;
             font-weight: bold;
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .results .monthly-payment {
             color: #28a745; /* Green for monthly payment */
             font-size: 1.8em;
             font-weight: bold;
         }
+
+        .chart-container {
+            /* Container for the canvas to control its size */
+            width: 100%;
+            max-width: 300px; /* Max width for the chart */
+            height: 300px; /* Max height for the chart to make it square */
+            position: relative; /* Needed for Chart.js responsiveness */
+        }
+
 
         /* Amortization Table Styles */
         #amortizationSchedule {
@@ -102,16 +128,21 @@
         <button id="calculateBtn">Generate Schedule</button>
 
         <div class="results">
-            <h2>Loan Summary:</h2>
-            <p class="label">Estimated Monthly Payment:</p>
-            <p id="monthlyPayment" class="value monthly-payment">$0.00</p>
+            <div class="summary-info">
+                <h2>Loan Summary:</h2>
+                <p class="label">Estimated Monthly Payment:</p>
+                <p id="monthlyPayment" class="value monthly-payment">$0.00</p>
+                </div>
+            <div class="chart-container">
+                <canvas id="amortizationChart"></canvas>
+            </div>
         </div>
 
         <div id="amortizationSchedule" style="display: none;">
             <h2>Amortization Schedule:</h2>
-            </div>
-        <a href="../index.html" class="back-link">← Back to Main Calculators</a>
+        </div>
+        <a href="index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    <script src="../scripts/amortizationcalc-script.js"></script>
+    <script src="amortizationcalc-script.js"></script>
 </body>
 </html>
