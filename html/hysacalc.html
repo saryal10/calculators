@@ -4,7 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>High-Yield Savings Account Calculator</title>
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* General Body Styles for sticky footer layout */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px; /* Add padding around the whole page */
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex; /* Enable flexbox */
+            flex-direction: column; /* Stack children vertically */
+            justify-content: space-between; /* Push content to top, footer to bottom */
+            align-items: center; /* Center content horizontally */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            box-sizing: border-box; /* Include padding in height calculation */
+        }
+
+        .calculator-container {
+            max-width: 480px; /* Consistent width with other calculators */
+            padding: 30px;
+            background-color: #ffffff; /* Added background for clarity */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px; /* Add margin below calculator before footer */
+            width: 100%; /* Allow container to take up max-width */
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column; /* Stack label, input, hint vertically */
+            align-items: flex-start; /* Align contents to the left */
+            gap: 5px; /* Space between elements in the group */
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            width: 100%; /* Full width for label */
+        }
+
+        .input-group input[type="number"],
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .input-group .hint {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center; /* Center the results text */
+        }
+
+        .results h2 {
+            margin-top: 0; /* Remove default h2 margin */
+            color: #333;
+        }
+
+        .results p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .results p span {
+            font-size: 1.4em;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer specific styles */
+        .footer-copyright {
+            width: 100%; /* Take full width */
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto; /* Pushes the footer to the bottom in a flex container */
+            font-size: 0.85em;
+            color: #777;
+            background-color: #e9ecef; /* Slightly different background for visual separation */
+            border-top: 1px solid #ddd;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .calculator-container {
+                padding: 20px;
+            }
+            .input-group {
+                flex-direction: column; /* Stack inputs vertically */
+                align-items: flex-start;
+            }
+            .input-group label,
+            .input-group input,
+            .input-group select {
+                width: 100%; /* Ensure inputs take full width */
+            }
+        }
+    </style>
+</head>
 <body>
     <div class="calculator-container">
         <h1>High-Yield Savings Account Interest Calculator</h1>
@@ -43,9 +188,11 @@
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-     <div class="footer-copyright">
+
+    <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
+
     <script src="../scripts/hysacalc-script.js"></script>
 </body>
 </html>
