@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalExpensesElem = document.getElementById('totalExpenses');
     const netBalanceElem = document.getElementById('netBalance');
     const budgetChartCanvas = document.getElementById('budgetChart');
-    // Removed calculateBtn since the page automatically calculates on input change and doesn't have an explicit 'Calculate' button anymore.
 
     let budgetChart; // To hold the Chart.js instance
 
@@ -131,7 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <label>${namePlaceholder}:</label>
             <input type="text" value="${namePlaceholder}">
             <input type="number" class="${type}-value" value="${amountValue}">
-            <button class="remove-btn">${canRemove ? 'Remove' : ''}</button> `;
+            <button class="remove-btn">${canRemove ? 'Remove' : ''}</button>
+        `;
 
         const nameInput = itemDiv.querySelector('input[type="text"]');
         const valueInput = itemDiv.querySelector('input[type="number"]');
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial setup of remove button visibility and content for default items on page load
     document.querySelectorAll('.remove-btn.initial-item').forEach(button => {
         button.style.display = 'none';
-        button.textContent = ''; // Ensure no text is visible if hidden
+        button.textContent = '';
     });
 
     // Initial calculation on page load
