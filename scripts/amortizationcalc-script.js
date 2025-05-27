@@ -101,32 +101,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const interestPayment = remainingBalance * monthlyInterestRate;
             let principalPayment = monthlyPayment - interestPayment;
 
+            // Store beginning balance for the current row before modification
+            const beginningBalance = remainingBalance;
+
             // Adjust last payment to account for rounding errors and ensure balance reaches zero
             if (i === numberOfPayments) {
-                principalPayment = remainingBalance;
+                principalPayment = beginningBalance; // Last principal payment equals remaining balance
                 // Recalculate interest for the last payment based on the final principal
-                // This ensures interest is calculated on the actual remaining balance at that point
-                const exactLastInterest = (loanAmount - totalPrincipalAccrued) * monthlyInterestRate;
-                totalInterestAccrued += exactLastInterest; // Add this exact last interest
-                principalPayment = loanAmount - totalPrincipalAccrued; // Ensure principal sums to loanAmount
-                remainingBalance = 0; // Explicitly set to 0 for the last payment
+                const exactLastInterest = (monthlyPayment - principalPayment); // interest is payment - principal
+                totalInterestAccrued += exactLastInterest;
             } else {
-                 remainingBalance -= principalPayment;
-                 totalInterestAccrued += interestPayment;
+                totalInterestAccrued += interestPayment;
             }
+
+            remainingBalance -= principalPayment;
             totalPrincipalAccrued += principalPayment;
 
             // Ensure balance doesn't go negative due to floating point inaccuracies
-            if (remainingBalance < 0 && i !== numberOfPayments) { // Don't adjust last payment to positive if it's supposed to be 0
-                 remainingBalance = 0;
+            if (remainingBalance < 0) { // If remainingBalance is slightly negative, set it to 0
+                remainingBalance = 0;
             }
-
 
             // Add row to table
             const row = amortizationTableBody.insertRow();
             row.innerHTML = `
                 <td>${i}</td>
-                <td>$${(loanAmount - totalPrincipalAccrued + principalPayment).toFixed(2)}</td> <td>$${monthlyPayment.toFixed(2)}</td>
+                <td>$${beginningBalance.toFixed(2)}</td>
+                <td>$${monthlyPayment.toFixed(2)}</td>
                 <td>$${principalPayment.toFixed(2)}</td>
                 <td>$${interestPayment.toFixed(2)}</td>
                 <td>$${remainingBalance.toFixed(2)}</td>
@@ -156,11 +157,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- Display Summary Results ---
         monthlyPaymentSpan.textContent = `$${monthlyPayment.toFixed(2)}`;
-        totalPrincipalPaidSpan.textContent = `$${totalPrincipalAccrued.toFixed(2)}`;
+        // For total principal paid, it should ideally be equal to loanAmount.
+        // Due to floating point math, totalPrincipalAccrued might slightly differ,
+        // so we'll use loanAmount for a clean display, assuming the calculation
+        // drove the balance to zero.
+        totalPrincipalPaidSpan.textContent = `$${loanAmount.toFixed(2)}`;
         totalInterestPaidSpan.textContent = `$${totalInterestAccrued.toFixed(2)}`;
         overallLoanCostSpan.textContent = `$${overallLoanCost.toFixed(2)}`;
 
-        // Show the schedule container
+        // Ensure the schedule container is visible after successful calculation
         amortizationScheduleContainer.style.display = 'block';
 
         // Update the chart
@@ -270,7 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         },
                         min: 0, // Ensure scale starts at 0
-                        // max: parseFloat(loanAmountInput.value) * 1.1 // Removed to allow Chart.js auto-scaling
                     },
                     x: {
                         title: {
@@ -290,7 +294,9 @@ document.addEventListener('DOMContentLoaded', function() {
         totalInterestPaidSpan.textContent = '$0.00';
         overallLoanCostSpan.textContent = '$0.00';
         amortizationTableBody.innerHTML = ''; // Clear table
-        amortizationScheduleContainer.style.display = 'none'; // Hide the table
+        // We will no longer hide the container by default in CSS,
+        // but if we were to hide it here on reset, we would use:
+        // amortizationScheduleContainer.style.display = 'none';
         if (amortizationChart) {
             amortizationChart.destroy(); // Destroy chart if it exists
         }
