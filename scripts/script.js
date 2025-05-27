@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Calculate PMI if down payment is less than 20%
         if ((downPayment / loanAmount) < 0.20) {
-            monthlyPmi = (Math.ceil(principal / 100000) * 100) / 12; // Annual $100 per $100k of principal, divided by 12
+            monthlyPmi = (Math.ceil(principal / 100000) * 100); // Annual $100 per $100k of principal, divided by 12
         } else {
             monthlyPmi = 0;
         }
