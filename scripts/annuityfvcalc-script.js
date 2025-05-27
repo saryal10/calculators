@@ -1,61 +1,108 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Input elements
-    const periodicPaymentInput = document.getElementById('periodicPayment');
-    const annualInterestRateInput = document.getElementById('annualInterestRate');
-    const numberOfYearsInput = document.getElementById('numberOfYears');
-    const frequencySelect = document.getElementById('frequency');
-    const annuityTypeRadios = document.querySelectorAll('input[name="annuityType"]');
-    const calculateBtn = document.getElementById('calculateBtn');
+// scripts/annuityfvcalc-script.js
 
-    // Output elements
-    const futureValueSpan = document.getElementById('futureValue');
+// Get input elements
+const periodicPaymentInput = document.getElementById('periodicPayment');
+const annualInterestRateInput = document.getElementById('annualInterestRate');
+const numberOfYearsInput = document.getElementById('numberOfYears');
+const frequencySelect = document.getElementById('frequency');
+const annuityTypeRadios = document.querySelectorAll('input[name="annuityType"]');
+const calculateButton = document.getElementById('calculateBtn');
 
-    calculateBtn.addEventListener('click', calculateFutureValue);
+// Get output elements
+const futureValueElement = document.getElementById('futureValue');
+const annuityChartCanvas = document.getElementById('annuityChart');
+let annuityChart; // Store chart instance
 
-    function calculateFutureValue() {
-        const PMT = parseFloat(periodicPaymentInput.value);
-        const annualRate = parseFloat(annualInterestRateInput.value);
-        const years = parseFloat(numberOfYearsInput.value);
-        const frequency = parseInt(frequencySelect.value); // Payments per year & compounding periods per year
-        const annuityType = document.querySelector('input[name="annuityType"]:checked').value;
+// Debounce function
+function debounce(func, delay) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
 
-        // --- Input Validation ---
-        if (isNaN(PMT) || PMT < 0) {
-            alert('Please enter a valid periodic payment amount (0 or greater).');
-            return;
-        }
-        if (isNaN(annualRate) || annualRate < 0) {
-            alert('Please enter a valid annual interest rate (0 or greater).');
-            return;
-        }
-        if (isNaN(years) || years <= 0) {
-            alert('Please enter a valid number of years (greater than 0).');
-            return;
-        }
+// Function to calculate future value and update UI
+function calculateFutureValue() {
+    const periodicPayment = parseFloat(periodicPaymentInput.value);
+    const annualInterestRate = parseFloat(annualInterestRateInput.value) / 100;
+    const numberOfYears = parseFloat(numberOfYearsInput.value);
+    const frequency = parseInt(frequencySelect.value);
+    const annuityType = document.querySelector('input[name="annuityType"]:checked').value;
 
-        const periodicRate = annualRate / 100 / frequency; // r
-        const totalPeriods = years * frequency; // n
-
-        let futureValue = 0;
-
-        if (periodicRate === 0) {
-            // Simple multiplication if interest rate is 0
-            futureValue = PMT * totalPeriods;
-        } else {
-            // Future Value of Ordinary Annuity: FV = PMT * [((1 + r)^n - 1) / r]
-            const fvOrdinaryAnnuityFactor = (Math.pow(1 + periodicRate, totalPeriods) - 1) / periodicRate;
-            futureValue = PMT * fvOrdinaryAnnuityFactor;
-
-            // Adjust for Annuity Due: FV_AD = FV_OA * (1 + r)
-            if (annuityType === 'due') {
-                futureValue *= (1 + periodicRate);
-            }
-        }
-
-        // --- Display Result ---
-        futureValueSpan.textContent = `$${futureValue.toFixed(2)}`;
+    // Input validation
+    if (isNaN(periodicPayment) || isNaN(annualInterestRate) || isNaN(numberOfYears) || isNaN(frequency)) {
+        futureValueElement.textContent = '$0.00';
+        updateChart(0, 0); // Clear chart
+        return;
     }
 
-    // Initial calculation on page load
-    calculateFutureValue();
-});
+    const periods = numberOfYears * frequency;
+    const ratePerPeriod = annualInterestRate / frequency;
+    let futureValue;
+
+    if (ratePerPeriod === 0) {
+        // Simple case for 0% interest
+        futureValue = periodicPayment * periods;
+    } else {
+        // Future Value of Annuity formula
+        futureValue = periodicPayment * ((Math.pow(1 + ratePerPeriod, periods) - 1) / ratePerPeriod);
+        if (annuityType === 'due') {
+            futureValue *= (1 + ratePerPeriod);
+        }
+    }
+
+    futureValueElement.textContent = `$${futureValue.toFixed(2)}`;
+
+    // Calculate total contributions and interest
+    const totalContributions = periodicPayment * periods;
+    const totalInterest = futureValue - totalContributions;
+
+    updateChart(totalContributions, totalInterest);
+}
+
+function updateChart(contributions, interest) {
+    if (annuityChart) {
+        annuityChart.destroy();
+    }
+
+    annuityChart = new Chart(annuityChartCanvas, {
+        type: 'pie',
+        data: {
+            labels: ['Total Contributions', 'Total Interest'],
+            datasets: [{
+                data: [contributions, interest],
+                backgroundColor: ['#007bff', '#28a745'], // Blue and Green
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Future Value Breakdown'
+                }
+            }
+        }
+    });
+}
+
+// Event listeners
+const debouncedCalculate = debounce(calculateFutureValue, 500);
+
+periodicPaymentInput.addEventListener('input', debouncedCalculate);
+annualInterestRateInput.addEventListener('input', debouncedCalculate);
+numberOfYearsInput.addEventListener('input', debouncedCalculate);
+frequencySelect.addEventListener('change', debouncedCalculate);
+annuityTypeRadios.forEach(radio => radio.addEventListener('change', debouncedCalculate));
+calculateButton.addEventListener('click', calculateFutureValue); // Immediate calculation
+
+// Initial calculation on page load
+document.addEventListener('DOMContentLoaded', calculateFutureValue);
