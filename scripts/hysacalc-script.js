@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalPrincipalSpan = document.getElementById('totalPrincipal');
     const totalInterestSpan = document.getElementById('totalInterest');
     const endingBalanceSpan = document.getElementById('endingBalance');
-    const hysaChartCanvas = document.getElementById('hysaChart');
+    const hysaChartCanvas = document.getElementById('hysaChart'); // THIS IS CRUCIAL FOR THE CHART
 
     let hysaChart; // To hold the Chart.js instance
 
