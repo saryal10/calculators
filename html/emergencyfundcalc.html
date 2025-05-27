@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emergency Fund Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/style.css"> 
     <style>
         /* General Body Styles for sticky footer layout */
@@ -31,6 +32,20 @@
             margin-bottom: 20px; /* Add margin below calculator before footer */
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
+        }
+
+        /* NEW: Centering the title and paragraph */
+        .calculator-container h1 {
+            text-align: center;
+            color: #007bff; /* Keep original color if preferred */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .calculator-container p {
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before sections */
+            color: #555;
         }
 
         .input-group {
@@ -90,6 +105,7 @@
             margin-bottom: 15px;
             border-bottom: 2px solid #eee;
             padding-bottom: 5px;
+            text-align: center; /* Center the section title */
         }
 
         .expense-item {
@@ -189,6 +205,15 @@
         }
         .results #recommendedEmergencyFund {
             color: #28a745; /* Green for recommended amount */
+        }
+
+        /* NEW: Chart container styles */
+        .chart-container {
+            width: 100%;
+            max-width: 450px; /* Adjust max-width for the chart */
+            height: 300px; /* Fixed height for the canvas */
+            margin: 20px auto 0 auto; /* Center the chart horizontally */
+            position: relative;
         }
 
         .back-link {
@@ -305,6 +330,10 @@
 
             <p class="label">Recommended Emergency Fund:</p>
             <p id="recommendedEmergencyFund" class="value">$0.00</p>
+
+            <div class="chart-container">
+                <canvas id="emergencyFundBarChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
