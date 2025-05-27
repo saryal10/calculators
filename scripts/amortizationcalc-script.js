@@ -12,8 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const overallLoanCostSpan = document.getElementById('overallLoanCost');
 
     // Amortization Table elements
-    const amortizationScheduleContainer = document.getElementById('amortizationScheduleContainer'); // Corrected ID
+    const amortizationScheduleContainer = document.getElementById('amortizationScheduleContainer');
     const amortizationTableBody = document.querySelector('#amortizationTable tbody');
+
+    // Error Message element
+    const errorMessageDiv = document.getElementById('errorMessage');
 
     // Chart elements
     const amortizationChartCanvas = document.getElementById('amortizationChart');
@@ -45,6 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function generateAmortizationSchedule() {
+        hideError(); // Clear any previous error messages
+
         const loanAmount = parseFloat(loanAmountInput.value);
         const annualInterestRate = parseFloat(annualInterestRateInput.value);
         const loanTermYears = parseFloat(loanTermYearsInput.value);
@@ -71,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let monthlyPayment;
         if (monthlyInterestRate === 0) {
+            // Handle zero interest rate: simple division of principal over term
             monthlyPayment = loanAmount / numberOfPayments;
         } else {
             // M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1]
@@ -79,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         let remainingBalance = loanAmount;
-        let totalInterestAccrued = 0; // Renamed to avoid confusion with `totalInterestPaid` in chart
+        let totalInterestAccrued = 0;
         let totalPrincipalAccrued = 0;
 
         // Data for chart
@@ -98,44 +104,60 @@ document.addEventListener('DOMContentLoaded', function() {
             // Adjust last payment to account for rounding errors and ensure balance reaches zero
             if (i === numberOfPayments) {
                 principalPayment = remainingBalance;
+                // Recalculate interest for the last payment based on the final principal
+                // This ensures interest is calculated on the actual remaining balance at that point
+                const exactLastInterest = (loanAmount - totalPrincipalAccrued) * monthlyInterestRate;
+                totalInterestAccrued += exactLastInterest; // Add this exact last interest
+                principalPayment = loanAmount - totalPrincipalAccrued; // Ensure principal sums to loanAmount
+                remainingBalance = 0; // Explicitly set to 0 for the last payment
+            } else {
+                 remainingBalance -= principalPayment;
+                 totalInterestAccrued += interestPayment;
             }
-
-            remainingBalance -= principalPayment;
-            totalInterestAccrued += interestPayment;
-            totalPrincipalAccrued += principalPayment; // Accumulate total principal paid
+            totalPrincipalAccrued += principalPayment;
 
             // Ensure balance doesn't go negative due to floating point inaccuracies
-            if (remainingBalance < 0) {
-                remainingBalance = 0;
+            if (remainingBalance < 0 && i !== numberOfPayments) { // Don't adjust last payment to positive if it's supposed to be 0
+                 remainingBalance = 0;
             }
+
 
             // Add row to table
             const row = amortizationTableBody.insertRow();
             row.innerHTML = `
                 <td>${i}</td>
-                <td>$${(remainingBalance + principalPayment).toFixed(2)}</td>
-                <td>$${monthlyPayment.toFixed(2)}</td>
+                <td>$${(loanAmount - totalPrincipalAccrued + principalPayment).toFixed(2)}</td> <td>$${monthlyPayment.toFixed(2)}</td>
                 <td>$${principalPayment.toFixed(2)}</td>
                 <td>$${interestPayment.toFixed(2)}</td>
                 <td>$${remainingBalance.toFixed(2)}</td>
             `;
 
-            // Collect data for chart (e.g., every 12th payment for annual view or more frequently for shorter terms)
-            // Always include first and last for better chart representation
-            if (i % 12 === 0 || i === 1 || i === numberOfPayments) {
-                 chartLabels.push(`Pmt ${i}`);
-                 chartPrincipalData.push(principalPayment);
-                 chartInterestData.push(interestPayment);
-                 chartBalanceData.push(remainingBalance);
-            }
+            // Collect data for chart for ALL payments
+            chartLabels.push(`Pmt ${i}`);
+            chartPrincipalData.push(principalPayment);
+            chartInterestData.push(interestPayment);
+            chartBalanceData.push(remainingBalance);
         }
+
+        // Add total row to table
+        const totalRow = amortizationTableBody.insertRow();
+        totalRow.classList.add('total-row');
+        totalRow.innerHTML = `
+            <td></td>
+            <td>Total:</td>
+            <td>$${(monthlyPayment * numberOfPayments).toFixed(2)}</td>
+            <td>$${totalPrincipalAccrued.toFixed(2)}</td>
+            <td>$${totalInterestAccrued.toFixed(2)}</td>
+            <td></td>
+        `;
+
 
         const overallLoanCost = loanAmount + totalInterestAccrued;
 
         // --- Display Summary Results ---
         monthlyPaymentSpan.textContent = `$${monthlyPayment.toFixed(2)}`;
-        totalPrincipalPaidSpan.textContent = `$${totalPrincipalAccrued.toFixed(2)}`; // Use accumulated principal
-        totalInterestPaidSpan.textContent = `$${totalInterestAccrued.toFixed(2)}`; // Use accumulated interest
+        totalPrincipalPaidSpan.textContent = `$${totalPrincipalAccrued.toFixed(2)}`;
+        totalInterestPaidSpan.textContent = `$${totalInterestAccrued.toFixed(2)}`;
         overallLoanCostSpan.textContent = `$${overallLoanCost.toFixed(2)}`;
 
         // Show the schedule container
@@ -248,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         },
                         min: 0, // Ensure scale starts at 0
-                        max: parseFloat(loanAmountInput.value) * 1.1 // Dynamically set max a bit above loan amount
+                        // max: parseFloat(loanAmountInput.value) * 1.1 // Removed to allow Chart.js auto-scaling
                     },
                     x: {
                         title: {
@@ -276,7 +298,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Helper function to display basic errors (can be expanded with a dedicated message area)
     function displayError(message) {
-        console.error(message); // For development
-        // You might want to display this message in the UI, e.g., in a div below inputs
+        errorMessageDiv.textContent = message;
+        errorMessageDiv.style.display = 'block'; // Show the error message
+    }
+
+    // Helper function to hide error message
+    function hideError() {
+        errorMessageDiv.textContent = '';
+        errorMessageDiv.style.display = 'none'; // Hide the error message
     }
 });
