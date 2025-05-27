@@ -1,184 +1,184 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const incomeInputsContainer = document.getElementById('incomeInputs');
-    const expenseInputsContainer = document.getElementById('expenseInputs');
-    const addIncomeBtn = document.getElementById('addIncomeBtn');
-    const addExpenseBtn = document.getElementById('addExpenseBtn');
+// scripts/budgetcalc-script.js
 
-    const totalIncomeSpan = document.getElementById('totalIncome');
-    const totalExpensesSpan = document.getElementById('totalExpenses');
-    const netBalanceSpan = document.getElementById('netBalance');
+// --- DOM Elements ---
+const incomeInputsDiv = document.getElementById('incomeInputs');
+const expenseInputsDiv = document.getElementById('expenseInputs');
+const addIncomeBtn = document.getElementById('addIncomeBtn');
+const addExpenseBtn = document.getElementById('addExpenseBtn');
+const totalIncomeElem = document.getElementById('totalIncome');
+const totalExpensesElem = document.getElementById('totalExpenses');
+const netBalanceElem = document.getElementById('netBalance');
+const budgetChartCanvas = document.getElementById('budgetChart');
+let budgetChart; // To hold the Chart.js instance
 
-    const budgetChartCanvas = document.getElementById('budgetChart'); // Get the canvas element
-    let budgetChart; // Variable to hold the Chart.js instance
+// --- Debounce Function ---
+// Prevents a function from being called too frequently.
+// Useful for input events to avoid excessive recalculations.
+function debounce(func, delay) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
 
-    // Function to create a new input row
-    function createInputRow(type, labelText = '', value = '', removable = true) {
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add(`${type}-item`);
+// --- Helper to Generate Random Colors for Chart ---
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
-        const label = document.createElement('label');
-        label.textContent = labelText;
+// --- Core Calculation and UI Update Function ---
+function calculateBudget() {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    const expenseDataForChart = []; // To store { label: 'Expense Name', value: amount }
 
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.value = labelText; // Pre-fill with labelText
-        nameInput.placeholder = `e.g., ${labelText}`; // Placeholder for clarity
+    // Calculate Total Income
+    document.querySelectorAll('.income-value').forEach(input => {
+        totalIncome += parseFloat(input.value) || 0;
+    });
 
-        const valueInput = document.createElement('input');
-        valueInput.type = 'number';
-        valueInput.classList.add(`${type}-value`);
-        valueInput.value = value;
-        valueInput.placeholder = 'Amount ($)';
-        valueInput.step = '0.01'; // Allow cents
+    // Calculate Total Expenses and collect data for chart
+    document.querySelectorAll('.expense-item').forEach(item => {
+        const nameInput = item.querySelector('input[type="text"]');
+        const valueInput = item.querySelector('.expense-value');
+        const expenseValue = parseFloat(valueInput.value) || 0;
+        const expenseName = nameInput.value.trim() || 'Unnamed Expense';
 
-        const removeBtn = document.createElement('button');
-        removeBtn.classList.add('remove-btn');
-        removeBtn.textContent = 'Remove';
-        removeBtn.style.visibility = removable ? 'visible' : 'hidden'; // Hide remove for initial items
-        if (removable) {
-            removeBtn.addEventListener('click', function() {
-                itemDiv.remove();
+        totalExpenses += expenseValue;
+        if (expenseValue > 0) { // Only add positive expenses to the chart
+            expenseDataForChart.push({ label: expenseName, value: expenseValue });
+        }
+    });
+
+    const netBalance = totalIncome - totalExpenses;
+
+    // Update summary display
+    totalIncomeElem.textContent = `$${totalIncome.toFixed(2)}`;
+    totalExpensesElem.textContent = `$${totalExpenses.toFixed(2)}`;
+    netBalanceElem.textContent = `$${netBalance.toFixed(2)}`;
+
+    // Apply color based on net balance
+    netBalanceElem.classList.remove('positive', 'negative');
+    if (netBalance >= 0) {
+        netBalanceElem.classList.add('positive');
+    } else {
+        netBalanceElem.classList.add('negative');
+    }
+
+    // Update the Expense Breakdown Chart
+    updateBudgetChart(expenseDataForChart);
+}
+
+// --- Chart Update Function ---
+function updateBudgetChart(expenseData) {
+    const labels = expenseData.map(item => item.label);
+    const data = expenseData.map(item => item.value);
+    const backgroundColors = data.map(() => getRandomColor()); // Generate a color for each slice
+
+    if (budgetChart) {
+        budgetChart.destroy(); // Destroy existing chart before creating a new one
+    }
+
+    budgetChart = new Chart(budgetChartCanvas, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right', // Place legend on the right for better readability
+                },
+                title: {
+                    display: true,
+                    text: 'Expense Breakdown' // Chart title
+                }
+            }
+        }
+    });
+}
+
+// --- Dynamic Item Creation Functions ---
+function createItem(type, nameValue, amountValue, canRemove = true) {
+    const itemDiv = document.createElement('div');
+    itemDiv.classList.add(`${type}-item`);
+
+    itemDiv.innerHTML = `
+        <label>${nameValue}:</label>
+        <input type="text" value="${nameValue}">
+        <input type="number" class="${type}-value" value="${amountValue}">
+        <button class="remove-btn">${canRemove ? 'Remove' : 'Remove'}</button>
+    `;
+
+    // Add event listeners to the new inputs (debounced)
+    const nameInput = itemDiv.querySelector('input[type="text"]');
+    const valueInput = itemDiv.querySelector('input[type="number"]');
+    nameInput.addEventListener('input', debouncedCalculate);
+    valueInput.addEventListener('input', debouncedCalculate);
+
+    const removeButton = itemDiv.querySelector('.remove-btn');
+    if (canRemove) {
+        removeButton.addEventListener('click', () => {
+            itemDiv.remove();
+            calculateBudget(); // Recalculate after removing an item
+        });
+    } else {
+        removeButton.style.visibility = 'hidden'; // Hide remove button for default items
+    }
+    return itemDiv;
+}
+
+// --- Event Handlers for Add Buttons ---
+addIncomeBtn.addEventListener('click', () => {
+    const newItem = createItem('income', 'New Income', 0);
+    incomeInputsDiv.appendChild(newItem);
+    calculateBudget(); // Recalculate after adding a new item
+});
+
+addExpenseBtn.addEventListener('click', () => {
+    const newItem = createItem('expense', 'New Expense', 0);
+    expenseInputsDiv.appendChild(newItem);
+    calculateBudget(); // Recalculate after adding a new item
+});
+
+// --- Initial Setup and Event Delegation for Existing Items ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach input listeners to initial items (before adding new ones)
+    document.querySelectorAll('.income-value, .expense-value, .income-item input[type="text"], .expense-item input[type="text"]').forEach(input => {
+        input.addEventListener('input', debouncedCalculate);
+    });
+
+    // Attach remove listeners to initial remove buttons
+    document.querySelectorAll('.remove-btn').forEach(button => {
+        if (button.style.visibility !== 'hidden') { // Only attach if not hidden
+            button.addEventListener('click', () => {
+                button.closest('.income-item, .expense-item').remove();
                 calculateBudget(); // Recalculate after removing
             });
         }
-
-        itemDiv.appendChild(label);
-        itemDiv.appendChild(nameInput); // Name input
-        itemDiv.appendChild(valueInput); // Value input
-        itemDiv.appendChild(removeBtn);
-
-        return itemDiv;
-    }
-
-    // Add Income/Expense Row Functions
-    addIncomeBtn.addEventListener('click', function() {
-        incomeInputsContainer.appendChild(createInputRow('income', 'New Income', '', true));
-        calculateBudget();
     });
 
-    addExpenseBtn.addEventListener('click', function() {
-        expenseInputsContainer.appendChild(createInputRow('expense', 'New Expense', '', true));
-        calculateBudget();
-    });
-
-    // Function to calculate the budget totals
-    function calculateBudget() {
-        let totalIncome = 0;
-        document.querySelectorAll('.income-value').forEach(input => {
-            const value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                totalIncome += value;
-            }
-        });
-
-        let totalExpenses = 0;
-        document.querySelectorAll('.expense-value').forEach(input => {
-            const value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                totalExpenses += value;
-            }
-        });
-
-        const netBalance = totalIncome - totalExpenses;
-
-        // Display results
-        totalIncomeSpan.textContent = `$${totalIncome.toFixed(2)}`;
-        totalExpensesSpan.textContent = `$${totalExpenses.toFixed(2)}`;
-        netBalanceSpan.textContent = `$${netBalance.toFixed(2)}`;
-
-        // Apply color based on net balance
-        netBalanceSpan.classList.remove('positive', 'negative');
-        if (netBalance >= 0) {
-            netBalanceSpan.classList.add('positive');
-        } else {
-            netBalanceSpan.classList.add('negative');
-        }
-
-        // Update the pie chart
-        updatePieChart(totalIncome, totalExpenses);
-    }
-
-    // Add event listeners using event delegation for dynamically added inputs
-    incomeInputsContainer.addEventListener('input', function(event) {
-        // Only trigger recalculation if a value input was changed
-        if (event.target.classList.contains('income-value') || event.target.type === 'text') {
-            calculateBudget();
-        }
-    });
-
-    expenseInputsContainer.addEventListener('input', function(event) {
-        // Only trigger recalculation if a value input was changed
-        if (event.target.classList.contains('expense-value') || event.target.type === 'text') {
-            calculateBudget();
-        }
-    });
-
-    // Function to create or update the pie chart
-    function updatePieChart(income, expenses) {
-        const ctx = budgetChartCanvas.getContext('2d');
-
-        // Destroy existing chart instance if it exists to prevent multiple charts rendering
-        if (budgetChart) {
-            budgetChart.destroy();
-        }
-
-        // Only show chart if there's some income or expense to avoid empty pie
-        if (income > 0 || expenses > 0) {
-            budgetChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Total Income', 'Total Expenses'],
-                    datasets: [{
-                        data: [income, expenses],
-                        backgroundColor: [
-                            '#28a745', // Green for Income
-                            '#dc3545'  // Red for Expenses
-                        ],
-                        hoverBackgroundColor: [
-                            '#218838',
-                            '#c82333'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Allows the chart to fill its container
-                    plugins: {
-                        title: {
-                            display: false, // We added a separate H3 title in HTML
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
-                                    }
-                                    return label;
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'bottom', // Place legend at the bottom
-                            labels: {
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            // If no data, ensure no chart is displayed or show a message
-            ctx.clearRect(0, 0, budgetChartCanvas.width, budgetChartCanvas.height); // Clear canvas
-            // You could also add a message to the canvas or its container
-        }
-    }
-
-    // Initial calculation on page load to display results and chart immediately
+    // Initial calculation on page load
     calculateBudget();
 });
+
+// --- Main Calculate Button Event Listener (Immediate) ---
+document.getElementById('calculateBtn').addEventListener('click', calculateBudget);
+
+// Create a debounced version of the main calculation function
+const debouncedCalculate = debounce(calculateBudget, 500); // 500ms debounce delay
