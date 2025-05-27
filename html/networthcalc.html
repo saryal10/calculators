@@ -68,63 +68,73 @@
 
         .asset-item, .liability-item {
             display: flex;
-            align-items: center;
-            gap: 10px; /* Space between elements in a row */
+            flex-direction: column; /* Stack label, input group, and link vertically */
+            align-items: center; /* Center items horizontally within the column */
             margin-bottom: 15px; /* Space between rows */
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
             width: 100%; /* Ensure items take full width to align properly within flex column container */
-            justify-content: center; /* Center content when it wraps */
         }
 
         .asset-item label, .liability-item label {
-            flex: 2; /* Label takes more space */
-            text-align: right; /* Align label text to the right */
+            text-align: left; /* Align label text to the left */
             font-size: 0.95em;
             color: #555;
-            padding-right: 10px;
-            min-width: 120px; /* Ensure labels don't get too small */
-            box-sizing: border-box;
+            width: 100%; /* Label takes full width */
+            margin-bottom: 5px; /* Space below label */
+        }
+
+        /* NEW: Container for name and value inputs */
+        .input-group {
+            display: flex;
+            gap: 10px; /* Space between name and value inputs */
+            width: 100%; /* Take full width of parent (.asset-item or .liability-item) */
+            margin-bottom: 5px; /* Space below input group, before remove link */
+            flex-wrap: wrap; /* Allow inputs to wrap if needed */
+        }
+
+        .input-group input[type="text"] {
+            flex: 3; /* Name input takes more space */
+            min-width: 150px; /* Ensure input doesn't get too small */
+        }
+
+        .input-group input[type="number"] {
+            flex: 2; /* Value input takes proportional space */
+            min-width: 100px; /* Ensure number input doesn't get too small */
+            text-align: right; /* Numbers align right */
         }
 
         .asset-item input[type="text"],
-        .liability-item input[type="text"] {
-            flex: 3; /* Name input takes more space */
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.9em;
-            min-width: 150px; /* Ensure input doesn't get too small */
-            box-sizing: border-box;
-        }
-
+        .liability-item input[type="text"],
         .asset-item input[type="number"],
         .liability-item input[type="number"] {
-            flex: 2; /* Value input takes proportional space */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
-            text-align: right; /* Numbers align right */
-            min-width: 100px; /* Ensure number input doesn't get too small */
             box-sizing: border-box;
         }
 
-        /* Reusing common button styles */
-        .remove-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        /* NEW: Styles for the "Remove" link */
+        .remove-link {
+            display: block; /* Make it take full width and stack */
             font-size: 0.8em;
-            white-space: nowrap; /* Prevent button text from wrapping */
-            outline: none; /* Remove blue outline on focus/hover */
+            color: #007bff; /* Typical link color */
+            text-decoration: none;
+            margin-top: 2px; /* Space above the link */
+            text-align: left; /* Align to the left below the input */
+            width: 100%; /* Take full width to align under inputs */
         }
-        .remove-btn:hover {
-            background-color: #c82333;
+
+        .remove-link:hover {
+            text-decoration: underline;
         }
+
+        /* Hide remove link for initial items via CSS */
+        /* This hides the link for the *first* child of assetInputs/liabilityInputs, which are your pre-filled ones */
+        #assetInputs .asset-item:first-child .remove-link,
+        #liabilityInputs .liability-item:first-child .remove-link {
+            display: none;
+        }
+
 
         .add-item-btn {
             background-color: #28a745;
@@ -197,7 +207,6 @@
         /* Styles for chart containers */
         .chart-container {
             width: 100%; /* Take full width of its parent (.charts-group) */
-            /* max-width: 350px; Removed, let it take full width of charts-group */
             height: 350px; /* Fixed height for charts */
             position: relative;
             border: 1px solid #ddd;
@@ -275,23 +284,18 @@
                 padding: 15px; /* Less padding inside container on small screens */
                 max-width: 100%; /* Ensure container fills small screens */
             }
-            .asset-item, .liability-item {
-                flex-direction: column; /* Stack items vertically */
-                align-items: flex-start;
-                gap: 5px; /* Reduce gap when stacked */
-                width: 100%; /* Ensure they take full width */
-            }
+            /* The asset-item/liability-item and input-group are already flex-direction: column for small screens in the new structure */
             .asset-item label, .liability-item label {
                 text-align: left; /* Align labels left when stacked */
                 width: 100%;
                 padding-right: 0;
             }
-            .asset-item input, .liability-item input {
+            .input-group input {
                 width: 100%; /* Full width for inputs when stacked */
                 min-width: unset; /* Remove min-width override */
             }
-            .remove-btn {
-                width: 100%; /* Full width for remove button */
+            .remove-link {
+                width: 100%; /* Full width for remove link */
                 margin-top: 5px; /* Add some spacing */
             }
             .results {
@@ -321,33 +325,43 @@
         <div id="assetInputs">
             <div class="asset-item">
                 <label>Cash & Savings:</label>
-                <input type="text" value="Checking/Savings">
-                <input type="number" class="asset-value" value="5000">
-                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Checking/Savings">
+                    <input type="number" class="asset-value" value="5000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="asset-item">
                 <label>Investments:</label>
-                <input type="text" value="Stocks/Bonds/Mutual Funds">
-                <input type="number" class="asset-value" value="25000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Stocks/Bonds/Mutual Funds">
+                    <input type="number" class="asset-value" value="25000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="asset-item">
                 <label>Retirement Accounts:</label>
-                <input type="text" value="401k/IRA">
-                <input type="number" class="asset-value" value="50000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="401k/IRA">
+                    <input type="number" class="asset-value" value="50000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="asset-item">
                 <label>Real Estate:</label>
-                <input type="text" value="Primary Residence (Market Value)">
-                <input type="number" class="asset-value" value="300000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Primary Residence (Market Value)">
+                    <input type="number" class="asset-value" value="300000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="asset-item">
                 <label>Vehicles:</label>
-                <input type="text" value="Car/Motorcycle (Market Value)">
-                <input type="number" class="asset-value" value="15000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Car/Motorcycle (Market Value)">
+                    <input type="number" class="asset-value" value="15000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
         </div>
         <button id="addAssetBtn" class="add-item-btn">Add Another Asset</button>
@@ -356,27 +370,35 @@
         <div id="liabilityInputs">
             <div class="liability-item">
                 <label>Mortgage:</label>
-                <input type="text" value="Primary Home Mortgage">
-                <input type="number" class="liability-value" value="200000">
-                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Primary Home Mortgage">
+                    <input type="number" class="liability-value" value="200000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="liability-item">
                 <label>Student Loans:</label>
-                <input type="text" value="Student Loans">
-                <input type="number" class="liability-value" value="30000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Student Loans">
+                    <input type="number" class="liability-value" value="30000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="liability-item">
                 <label>Car Loans:</label>
-                <input type="text" value="Car Loan">
-                <input type="number" class="liability-value" value="10000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Car Loan">
+                    <input type="number" class="liability-value" value="10000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
             <div class="liability-item">
                 <label>Credit Card Debt:</label>
-                <input type="text" value="Credit Card Debt">
-                <input type="number" class="liability-value" value="5000">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group">
+                    <input type="text" value="Credit Card Debt">
+                    <input type="number" class="liability-value" value="5000">
+                </div>
+                <a href="#" class="remove-link">Remove</a>
             </div>
         </div>
         <button id="addLiabilityBtn" class="add-item-btn">Add Another Liability</button>
@@ -406,7 +428,7 @@
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    
+
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
