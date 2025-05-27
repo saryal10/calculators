@@ -195,5 +195,26 @@
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollPositionKey = 'financialCompanionScrollPos';
+
+            // Check for a saved scroll position on page load
+            const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
+            if (savedScrollPosition) {
+                // Use a slight delay to ensure content has rendered, if needed
+                // For simple pages like this, a direct scroll usually works.
+                window.scrollTo(0, parseInt(savedScrollPosition, 10));
+                // Clear the saved position to prevent scrolling to it on subsequent direct visits or refreshes
+                sessionStorage.removeItem(scrollPositionKey); 
+            }
+
+            // Save the current scroll position when navigating away
+            window.addEventListener('beforeunload', function() {
+                sessionStorage.setItem(scrollPositionKey, window.scrollY);
+            });
+        });
+    </script>
 </body>
 </html>
