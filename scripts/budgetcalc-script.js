@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const expenseDataForChart = [];
 
         // Calculate Total Income
+        // Selects income-value inputs directly, which are now inside .input-row
         document.querySelectorAll('.income-value').forEach((input) => {
             const incomeValue = parseFloat(input.value) || 0;
             totalIncome += incomeValue;
@@ -49,8 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Calculate Total Expenses and collect data for chart
         document.querySelectorAll('.expense-item').forEach((item) => {
-            const nameInput = item.querySelector('input[type="text"]');
-            const valueInput = item.querySelector('.expense-value');
+            // Selects input fields within the current item's .input-row
+            const nameInput = item.querySelector('.input-row input[type="text"]');
+            const valueInput = item.querySelector('.input-row .expense-value');
+
             const expenseValue = parseFloat(valueInput.value) || 0;
             const expenseName = nameInput.value.trim() || 'Unnamed Expense';
 
@@ -126,15 +129,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add(`${type}-item`);
 
+        // Adjusted innerHTML for the new nested structure
         itemDiv.innerHTML = `
             <label>${namePlaceholder}:</label>
-            <input type="text" value="${namePlaceholder}">
-            <input type="number" class="${type}-value" value="${amountValue}">
-            <button class="remove-btn">${canRemove ? 'Remove' : ''}</button>
+            <div class="input-group-vertical">
+                <div class="input-row">
+                    <input type="text" value="${namePlaceholder}">
+                    <input type="number" class="${type}-value" value="${amountValue}">
+                </div>
+                <button class="remove-btn">${canRemove ? 'Remove' : ''}</button>
+            </div>
         `;
 
-        const nameInput = itemDiv.querySelector('input[type="text"]');
-        const valueInput = itemDiv.querySelector('input[type="number"]');
+        // Select inputs within the new .input-row
+        const nameInput = itemDiv.querySelector('.input-row input[type="text"]');
+        const valueInput = itemDiv.querySelector('.input-row input[type="number"]');
         nameInput.addEventListener('input', debouncedCalculate);
         valueInput.addEventListener('input', debouncedCalculate);
 
@@ -168,14 +177,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const debouncedCalculate = debounce(calculateBudget, 500);
 
     // Attach input listeners to all existing items
-    document.querySelectorAll('.income-item input, .expense-item input').forEach(input => {
+    // Needs to target inputs within the new .input-row
+    document.querySelectorAll('.income-item .input-row input, .expense-item .input-row input').forEach(input => {
         input.addEventListener('input', debouncedCalculate);
     });
 
     // Attach remove listeners to existing remove buttons, excluding those with 'initial-item' class
     document.querySelectorAll('.remove-btn:not(.initial-item)').forEach(button => {
         button.addEventListener('click', () => {
-            button.closest('.income-item, .expense-item').remove();
+            button.closest('.income-item, .expense-item').remove(); // This still finds the correct parent
             calculateBudget();
         });
     });
