@@ -24,6 +24,11 @@ function debounce(func, delay) {
     };
 }
 
+// Create a debounced version of the main calculation function
+// This MUST be defined before it's used in any event listeners.
+const debouncedCalculate = debounce(calculateBudget, 500); // 500ms debounce delay
+
+
 // --- Helper to Generate Random Colors for Chart ---
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
@@ -155,14 +160,7 @@ function createItem(type, nameValue, amountValue, canRemove = true) {
             calculateBudget(); // Recalculate after removing an item
         });
     } else {
-        // Ensure the remove button is hidden for the first item
-        // and doesn't have a click listener if it's not meant to be removed
         removeButton.style.visibility = 'hidden';
-        // It's good practice to explicitly remove the listener if it was there,
-        // though visibility hidden usually implies it's not interactive.
-        // For default items, the listener is attached via DOMContentLoaded loop,
-        // so this specific line for newly created non-removable items isn't strictly needed
-        // unless you dynamically change `canRemove` for an existing item.
     }
     return itemDiv;
 }
@@ -185,15 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded. Initializing...'); // Debugging
 
     // Attach input listeners to initial items (before adding new ones)
-    // Select all inputs that are part of income or expense items
     document.querySelectorAll('.income-item input, .expense-item input').forEach(input => {
         input.addEventListener('input', debouncedCalculate);
     });
 
     // Attach remove listeners to initial remove buttons
     document.querySelectorAll('.remove-btn').forEach(button => {
-        // Only attach if the button is not explicitly hidden (meaning it's removable)
-        // This check is important for the first income/expense item's remove button
         if (button.style.visibility !== 'hidden') {
             button.addEventListener('click', () => {
                 button.closest('.income-item, .expense-item').remove();
@@ -208,6 +203,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Main Calculate Button Event Listener (Immediate) ---
 document.getElementById('calculateBtn').addEventListener('click', calculateBudget);
-
-// Create a debounced version of the main calculation function
-const debouncedCalculate = debounce(calculateBudget, 500); // 500ms debounce delay
