@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Net Worth Calculator</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 600px; /* Wider for more content */
+            max-width: 800px; /* Increased max-width to accommodate charts */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -94,6 +95,7 @@
             transition: background-color 0.3s ease;
             font-size: 0.8em;
             white-space: nowrap; /* Prevent button text from wrapping */
+            outline: none; /* Remove blue outline on focus/hover */
         }
         .remove-btn:hover {
             background-color: #c82333;
@@ -120,11 +122,20 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            display: flex; /* Use flexbox for summary and charts */
+            flex-wrap: wrap; /* Allow wrapping of children */
+            justify-content: space-around; /* Distribute space around items */
+            gap: 20px; /* Space between summary and charts */
+        }
+
+        .summary-details {
+            flex: 1; /* Allows it to grow and shrink */
+            min-width: 280px; /* Minimum width for summary block */
+            text-align: center;
         }
 
         .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+            margin-top: 0;
             color: #333;
         }
 
@@ -135,7 +146,7 @@
             font-weight: normal;
         }
         .results p.value {
-            font-size: 1.8em; /* Larger for totals */
+            font-size: 1.8em;
             font-weight: bold;
             margin-top: 0;
             margin-bottom: 15px;
@@ -146,6 +157,31 @@
         .results #netWorth.negative {
             color: #dc3545; /* Red for negative net worth */
         }
+
+        /* Styles for chart containers */
+        .chart-container {
+            width: 100%; /* Take full width on small screens */
+            max-width: 350px; /* Max width for individual charts */
+            height: 350px; /* Fixed height for charts */
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center canvas within container */
+        }
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
 
         .back-link {
             display: block;
@@ -174,7 +210,7 @@
         }
 
         /* Responsive adjustments */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .calculator-container {
                 padding: 20px;
             }
@@ -195,6 +231,17 @@
             .remove-btn {
                 width: 100%; /* Full width for remove button */
                 margin-top: 5px; /* Add some spacing */
+            }
+            .results {
+                flex-direction: column; /* Stack summary and charts vertically */
+                align-items: center;
+            }
+            .summary-details, .chart-container {
+                min-width: unset; /* Remove min-width override for small screens */
+                width: 100%; /* Take full width */
+            }
+            .chart-container {
+                height: 300px; /* Adjust height for smaller screens if needed */
             }
         }
     </style>
@@ -269,15 +316,25 @@
         <button id="addLiabilityBtn" class="add-item-btn">Add Another Liability</button>
 
         <div class="results">
-            <h2>Summary:</h2>
-            <p class="label">Total Assets:</p>
-            <p id="totalAssets" class="value">$0.00</p>
+            <div class="summary-details">
+                <h2>Summary:</h2>
+                <p class="label">Total Assets:</p>
+                <p id="totalAssets" class="value">$0.00</p>
 
-            <p class="label">Total Liabilities:</p>
-            <p id="totalLiabilities" class="value">$0.00</p>
+                <p class="label">Total Liabilities:</p>
+                <p id="totalLiabilities" class="value">$0.00</p>
 
-            <p class="label">Your Net Worth:</p>
-            <p id="netWorth" class="value positive">$0.00</p>
+                <p class="label">Your Net Worth:</p>
+                <p id="netWorth" class="value positive">$0.00</p>
+            </div>
+            <div class="chart-container">
+                <h3>Asset Breakdown</h3>
+                <canvas id="assetChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Liability Breakdown</h3>
+                <canvas id="liabilityChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
