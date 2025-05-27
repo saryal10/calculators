@@ -24,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 600px; /* Adjusted to accommodate chart */
+            max-width: 900px; /* Increased width to accommodate inputs and chart side-by-side */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -32,6 +32,27 @@
             margin-bottom: 20px; /* Add margin below calculator before footer */
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
+            display: flex; /* Enable flexbox for internal layout */
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: center; /* Center items horizontally */
+            gap: 30px; /* Space between input column and results/chart column */
+        }
+
+        /* NEW: Styles for the main heading */
+        .calculator-container h1 {
+            width: 100%; /* Make H1 take full width */
+            text-align: center; /* Center the text within the H1 */
+            margin-top: 0;
+            margin-bottom: 25px; /* Add some space below the title */
+            color: #007bff;
+        }
+
+        /* NEW: Wrapper for input fields */
+        .input-fields-wrapper {
+            flex: 1; /* Allows this section to grow */
+            min-width: 300px; /* Minimum width for inputs */
+            max-width: 450px; /* Max width for inputs */
+            box-sizing: border-box;
         }
 
         .input-group {
@@ -67,7 +88,7 @@
 
         button {
             display: block;
-            width: 100%;
+            width: 100%; /* Button should span the full width within its flex container */
             padding: 12px 20px;
             background-color: #007bff;
             color: white;
@@ -76,52 +97,61 @@
             font-size: 1.1em;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            margin-top: 20px; /* Adjusted margin */
+            margin-bottom: 0; /* Adjusted margin */
         }
 
         button:hover {
             background-color: #0056b3;
         }
 
-        .results {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
+        /* NEW: Results and Chart Container */
+        .results-and-chart-container {
+            flex: 1; /* Allows this section to grow */
+            min-width: 300px; /* Minimum width for results/chart */
+            max-width: 450px; /* Max width for results/chart */
+            box-sizing: border-box;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 20px;
+            flex-direction: column; /* Stack summary and chart vertically */
+            gap: 20px; /* Space between summary and chart */
+            align-items: center; /* Center content horizontally within its flex item */
         }
 
-        .results-summary {
-            flex: 1;
-            min-width: 280px;
-            text-align: left;
+        .results {
+            width: 100%; /* Take full width within its parent */
+            padding-top: 0; /* Remove top padding as .results-and-chart-container handles spacing */
+            border-top: none; /* Remove border top */
+            text-align: left; /* Align text within the results block */
+            background-color: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .results h2 {
             margin-top: 0;
             color: #333;
-            text-align: center; /* Center the title */
+            text-align: center; /* Center the section title */
+            margin-bottom: 15px;
         }
 
         .results p.label {
-            font-size: 1.1em;
+            font-size: 1.05em; /* Slightly smaller label font */
             color: #555;
-            margin-bottom: 5px;
+            margin-bottom: 3px; /* Reduced margin */
             font-weight: normal;
         }
         .results p.value {
-            font-size: 1.4em;
+            font-size: 1.3em; /* Slightly smaller value font */
             color: #007bff;
             font-weight: bold;
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 12px; /* Reduced margin */
         }
         .results .highlight-balance {
             color: #28a745; /* Green for positive growth */
-            font-size: 1.5em;
+            font-size: 1.4em; /* Adjusted font size */
             font-weight: bold;
         }
         .results .nominal-balance {
@@ -132,9 +162,7 @@
         }
 
         .chart-container {
-            flex: 1;
-            min-width: 280px;
-            max-width: 350px;
+            width: 100%; /* Take full width within its parent */
             height: 300px; /* Fixed height for the chart container */
             position: relative; /* Needed for Chart.js responsiveness */
             border: 1px solid #ddd;
@@ -152,11 +180,13 @@
             color: #333;
             font-size: 1.2em;
             margin-bottom: 10px;
+            text-align: center; /* Center the chart title */
+            width: 100%;
         }
 
         .chart-container canvas {
             max-width: 100%;
-            height: 250px; /* Adjust canvas height to fit container */
+            max-height: calc(100% - 30px); /* Adjust height to account for h3 and its margin */
         }
 
         .back-link {
@@ -166,6 +196,7 @@
             color: #007bff;
             text-decoration: none;
             font-size: 0.95em;
+            width: 100%; /* Ensures it centers within the calculator-container */
         }
 
         .back-link:hover {
@@ -186,9 +217,16 @@
         }
 
         /* Responsive adjustments */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) { /* Adjusted breakpoint for two columns */
             .calculator-container {
+                flex-direction: column; /* Stack columns vertically */
                 padding: 20px;
+                gap: 20px; /* Reduce gap on smaller screens */
+            }
+            .input-fields-wrapper,
+            .results-and-chart-container {
+                min-width: unset; /* Remove min-width override */
+                max-width: 100%; /* Take full width */
             }
             .input-group {
                 flex-direction: column; /* Stack inputs vertically */
@@ -200,14 +238,14 @@
                 width: 100%; /* Ensure inputs take full width */
             }
             .results {
-                flex-direction: column; /* Stack summary and chart vertically */
-                align-items: center;
-                text-align: left; /* Align text within stacked items */
+                text-align: center; /* Center text in results summary when stacked */
             }
-            .results-summary, .chart-container {
-                min-width: unset; /* Remove min-width for full flexibility */
-                width: 100%; /* Take full width on small screens */
-                max-width: unset; /* Remove max-width constraint */
+            .chart-container {
+                height: 280px; /* Adjust height for smaller screens if needed */
+                padding: 10px;
+            }
+            .chart-container canvas {
+                max-height: calc(100% - 20px); /* Adjust canvas height for smaller screens */
             }
         }
     </style>
@@ -215,37 +253,38 @@
 <body>
     <div class="calculator-container">
         <h1>Retirement Savings Calculator</h1>
-        <p>Project your future retirement balance and see its value in today's dollars.</p>
+        <p style="width: 100%; text-align: center; margin-top: -10px; margin-bottom: 25px; color: #555;">Project your future retirement balance and see its value in today's dollars.</p>
 
-        <div class="input-group">
-            <label for="currentAge">Current Age:</label>
-            <input type="number" id="currentAge" value="30" min="18" max="90">
-        </div>
-        <div class="input-group">
-            <label for="retirementAge">Desired Retirement Age:</label>
-            <input type="number" id="retirementAge" value="65" min="18" max="90">
-        </div>
-        <div class="input-group">
-            <label for="currentSavings">Current Retirement Savings ($):</label>
-            <input type="number" id="currentSavings" value="10000">
-        </div>
-        <div class="input-group">
-            <label for="annualContribution">Annual Contribution ($):</label>
-            <input type="number" id="annualContribution" value="6000">
-        </div>
-        <div class="input-group">
-            <label for="annualReturnRate">Annual Rate of Return (%):</label>
-            <input type="number" id="annualReturnRate" value="7" step="0.01">
-        </div>
-        <div class="input-group">
-            <label for="annualInflationRate">Annual Inflation Rate (%):</label>
-            <input type="number" id="annualInflationRate" value="3" step="0.01">
+        <div class="input-fields-wrapper">
+            <div class="input-group">
+                <label for="currentAge">Current Age:</label>
+                <input type="number" id="currentAge" value="30" min="18" max="90">
+            </div>
+            <div class="input-group">
+                <label for="retirementAge">Desired Retirement Age:</label>
+                <input type="number" id="retirementAge" value="65" min="18" max="90">
+            </div>
+            <div class="input-group">
+                <label for="currentSavings">Current Retirement Savings ($):</label>
+                <input type="number" id="currentSavings" value="10000">
+            </div>
+            <div class="input-group">
+                <label for="annualContribution">Annual Contribution ($):</label>
+                <input type="number" id="annualContribution" value="6000">
+            </div>
+            <div class="input-group">
+                <label for="annualReturnRate">Annual Rate of Return (%):</label>
+                <input type="number" id="annualReturnRate" value="7" step="0.01">
+            </div>
+            <div class="input-group">
+                <label for="annualInflationRate">Annual Inflation Rate (%):</label>
+                <input type="number" id="annualInflationRate" value="3" step="0.01">
+            </div>
+            <button id="calculateBtn">Project Savings</button>
         </div>
 
-        <button id="calculateBtn">Project Savings</button>
-
-        <div class="results">
-            <div class="results-summary">
+        <div class="results-and-chart-container">
+            <div class="results">
                 <h2>Projected Balance:</h2>
                 <p class="label">Years Until Retirement:</p>
                 <p id="yearsUntilRetirement" class="value">0</p>
