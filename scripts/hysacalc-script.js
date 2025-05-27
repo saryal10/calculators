@@ -123,7 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true, // IMPORTANT: Set this to true
+                    aspectRatio: 1, // IMPORTANT: Set aspect ratio to 1 for a perfect circle/square
                     plugins: {
                         legend: {
                             position: 'bottom', // Place legend below the chart
