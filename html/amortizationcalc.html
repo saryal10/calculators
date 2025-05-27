@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amortization Schedule Calculator</title>
-    <link rel="stylesheet" href="../css/style.css"> 
-    
+    <link rel="stylesheet" href="../css/style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -170,6 +170,7 @@
             font-size: 0.9em;
         }
 
+        /* Calculate Button Styles (Restored) */
         button {
             display: block;
             width: 100%;
@@ -181,7 +182,7 @@
             font-size: 1.1em;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-bottom: 20px;
+            margin-bottom: 20px; /* Keep margin */
         }
 
         button:hover {
@@ -211,6 +212,7 @@
             color: #777;
             background-color: #e9ecef; /* Slightly different background for visual separation */
             border-top: 1px solid #ddd;
+            box-sizing: border-box;
         }
 
         /* Responsive adjustments */
@@ -271,10 +273,10 @@
 
         <div id="amortizationSchedule" style="display: none;">
             <h2>Amortization Schedule:</h2>
-        </div>
+            </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    
+
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
