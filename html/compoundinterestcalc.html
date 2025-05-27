@@ -1,268 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compound Interest Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* General Body Styles for sticky footer layout */
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px; /* Add padding around the whole page */
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex; /* Enable flexbox */
-            flex-direction: column; /* Stack children vertically */
-            justify-content: space-between; /* Push content to top, footer to bottom */
-            align-items: center; /* Center content horizontally */
-            min-height: 100vh; /* Ensure body takes full viewport height */
-            box-sizing: border-box; /* Include padding in height calculation */
+// scripts/compoundinterestcalc-script.js
+
+// --- Debounce Function ---
+// Prevents a function from being called too frequently, useful for input events.
+function debounce(func, delay) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
+
+// All DOM manipulation and event listener setup should happen after the DOM is fully loaded.
+document.addEventListener('DOMContentLoaded', function() {
+    // --- DOM Elements ---
+    const initialInvestmentInput = document.getElementById('initialInvestment');
+    const annualContributionInput = document.getElementById('annualContribution');
+    const annualInterestRateInput = document.getElementById('annualInterestRate');
+    const compoundingFrequencySelect = document.getElementById('compoundingFrequency');
+    const investmentPeriodInput = document.getElementById('investmentPeriod');
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    const totalPrincipalInvestedSpan = document.getElementById('totalPrincipalInvested');
+    const totalInterestEarnedSpan = document.getElementById('totalInterestEarned');
+    const endingBalanceSpan = document.getElementById('endingBalance');
+    const compoundChartCanvas = document.getElementById('compoundChart'); // Get the canvas element
+
+    let compoundChart; // Variable to hold the Chart.js instance
+
+    // --- Core Calculation Function ---
+    function calculateCompoundInterest() {
+        console.log('Calculating Compound Interest...'); // Debugging log
+
+        let initialInvestment = parseFloat(initialInvestmentInput.value) || 0;
+        let annualContribution = parseFloat(annualContributionInput.value) || 0;
+        const annualInterestRate = parseFloat(annualInterestRateInput.value) || 0;
+        const compoundingFrequency = compoundingFrequencySelect.value;
+        const investmentPeriodYears = parseFloat(investmentPeriodInput.value) || 0;
+
+        console.log(`Inputs: Initial=${initialInvestment}, AnnualCont=${annualContribution}, Rate=${annualInterestRate}, Freq=${compoundingFrequency}, Years=${investmentPeriodYears}`); // Debugging logs
+
+        // --- Input Validation ---
+        if (initialInvestment < 0 || annualContribution < 0 || annualInterestRate < 0 || investmentPeriodYears <= 0) {
+            console.error('Please enter valid, non-negative values for all inputs. Investment Period must be greater than 0.');
+            totalPrincipalInvestedSpan.textContent = '$0.00';
+            totalInterestEarnedSpan.textContent = '$0.00';
+            endingBalanceSpan.textContent = '$0.00';
+            updateChart(0, 0); // Clear chart
+            return;
         }
 
-        .calculator-container {
-            max-width: 600px; /* Adjusted to accommodate chart */
-            padding: 30px;
-            background-color: #ffffff; /* Added background for clarity */
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px; /* Add margin below calculator before footer */
-            width: 100%; /* Allow container to take up max-width */
-            box-sizing: border-box; /* Include padding in width */
+        const rate = annualInterestRate / 100;
+
+        let compoundingPeriodsPerYear;
+        switch (compoundingFrequency) {
+            case 'annually':
+                compoundingPeriodsPerYear = 1;
+                break;
+            case 'quarterly':
+                compoundingPeriodsPerYear = 4;
+                break;
+            case 'monthly':
+                compoundingPeriodsPerYear = 12;
+                break;
+            case 'daily':
+                compoundingPeriodsPerYear = 365; // Assuming 365 days
+                break;
+            default:
+                compoundingPeriodsPerYear = 1; // Default to annually if somehow not set
         }
 
-        .input-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column; /* Stack label, input, hint vertically */
-            align-items: flex-start; /* Align contents to the left */
-            gap: 5px; /* Space between elements in the group */
-        }
+        const totalCompoundingPeriods = investmentPeriodYears * compoundingPeriodsPerYear;
+        const periodicRate = rate / compoundingPeriodsPerYear;
+        const periodicContribution = annualContribution / compoundingPeriodsPerYear;
 
-        .input-group label {
-            font-weight: 600;
-            color: #333;
-            width: 100%; /* Full width for label */
-        }
+        let currentBalance = initialInvestment;
+        // Total principal includes initial investment plus all contributions over the period
+        let totalPrincipalAdded = initialInvestment;
 
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-            box-sizing: border-box; /* Include padding in width */
-        }
-
-        .input-group .hint {
-            font-size: 0.85em;
-            color: #777;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        button {
-            display: block;
-            width: 100%;
-            padding: 12px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .results {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 20px;
-        }
-
-        .results-summary {
-            flex: 1;
-            min-width: 280px;
-            text-align: left;
-        }
-
-        .results h2 {
-            margin-top: 0;
-            color: #333;
-            text-align: center; /* Center the title */
-        }
-
-        .results p.label {
-            font-size: 1.1em;
-            color: #555;
-            margin-bottom: 5px;
-            font-weight: normal;
-        }
-        .results p.value {
-            font-size: 1.4em;
-            color: #007bff;
-            font-weight: bold;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        .results .highlight-balance {
-            color: #28a745; /* Green for positive growth */
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .chart-container {
-            flex: 1;
-            min-width: 280px;
-            max-width: 350px;
-            height: 300px; /* Fixed height for the chart container */
-            position: relative; /* Needed for Chart.js responsiveness */
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #fcfcfc;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .chart-container h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .chart-container canvas {
-            max-width: 100%;
-            height: 250px; /* Adjust canvas height to fit container */
-        }
-
-        .back-link {
-            display: block;
-            margin-top: 30px;
-            text-align: center;
-            color: #007bff;
-            text-decoration: none;
-            font-size: 0.95em;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Footer specific styles */
-        .footer-copyright {
-            width: 100%; /* Take full width */
-            text-align: center;
-            padding: 20px 0;
-            margin-top: auto; /* Pushes the footer to the bottom in a flex container */
-            font-size: 0.85em;
-            color: #777;
-            background-color: #e9ecef; /* Slightly different background for visual separation */
-            border-top: 1px solid #ddd;
-            box-sizing: border-box; /* Include padding in width */
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .calculator-container {
-                padding: 20px;
+        for (let i = 1; i <= totalCompoundingPeriods; i++) {
+            // Add periodic contribution at the start of each period before compounding
+            currentBalance += periodicContribution;
+            // Accumulate principal for tracking. Note: This adds *all* potential contributions.
+            // If interest is only applied on the existing balance, the "principal added" calculation
+            // is simpler for a final summary.
+            if (i > 1) { // Initial investment is already counted
+                totalPrincipalAdded += periodicContribution;
             }
-            .input-group {
-                flex-direction: column; /* Stack inputs vertically */
-                align-items: flex-start;
-            }
-            .input-group label,
-            .input-group input,
-            .input-group select {
-                width: 100%; /* Ensure inputs take full width */
-            }
-            .results {
-                flex-direction: column; /* Stack summary and chart vertically */
-                align-items: center;
-                text-align: left; /* Align text within stacked items */
-            }
-            .results-summary, .chart-container {
-                min-width: unset; /* Remove min-width for full flexibility */
-                width: 100%; /* Take full width on small screens */
-                max-width: unset; /* Remove max-width constraint */
-            }
+
+            // Apply interest to the current balance
+            currentBalance *= (1 + periodicRate);
         }
-    </style>
-</head>
-<body>
-    <div class="calculator-container">
-        <h1>Compound Interest Calculator</h1>
-        <p>Discover the power of compounding on your investments over time.</p>
 
-        <div class="input-group">
-            <label for="initialInvestment">Initial Investment ($):</label>
-            <input type="number" id="initialInvestment" value="5000">
-        </div>
-        <div class="input-group">
-            <label for="annualContribution">Annual Contribution ($):</label>
-            <input type="number" id="annualContribution" value="1200">
-        </div>
-        <div class="input-group">
-            <label for="annualInterestRate">Annual Interest Rate (% APY):</label>
-            <input type="number" id="annualInterestRate" value="7" step="0.01">
-        </div>
-        <div class="input-group">
-            <label for="compoundingFrequency">Compounding Frequency:</label>
-            <select id="compoundingFrequency">
-                <option value="annually">Annually</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="monthly" selected>Monthly</option>
-                <option value="daily">Daily (365 times/year)</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="investmentPeriod">Investment Period (Years):</label>
-            <input type="number" id="investmentPeriod" value="10">
-        </div>
+        // The interest earned is the final balance minus the total amount of money *put in*
+        let totalInterestEarned = currentBalance - totalPrincipalAdded;
 
-        <button id="calculateBtn">Calculate Growth</button>
+        // Ensure interest is not negative due to floating point errors or if initial/contributions are 0
+        if (totalInterestEarned < 0) {
+            totalInterestEarned = 0;
+        }
 
-        <div class="results">
-            <div class="results-summary">
-                <h2>Your Investment Growth:</h2>
-                <p class="label">Total Principal Invested:</p>
-                <p id="totalPrincipalInvested" class="value">$0.00</p>
+        // --- Display Results ---
+        totalPrincipalInvestedSpan.textContent = `$${totalPrincipalAdded.toFixed(2)}`;
+        totalInterestEarnedSpan.textContent = `$${totalInterestEarned.toFixed(2)}`;
+        endingBalanceSpan.textContent = `$${currentBalance.toFixed(2)}`;
 
-                <p class="label">Total Interest Earned:</p>
-                <p id="totalInterestEarned" class="value">$0.00</p>
+        // Update the chart with the new data
+        updateChart(totalPrincipalAdded, totalInterestEarned);
+        console.log('Compound Interest calculation complete. Principal:', totalPrincipalAdded, 'Interest:', totalInterestEarned, 'Ending Balance:', currentBalance); // Debugging log
+    }
 
-                <p class="label">Ending Balance:</p>
-                <p id="endingBalance" class="value highlight-balance">$0.00</p>
-            </div>
-            <div class="chart-container">
-                <h3>Investment Breakdown</h3>
-                <canvas id="compoundChart"></canvas>
-            </div>
-        </div>
-        <a href="../index.html" class="back-link">← Back to Main Calculators</a>
-    </div>
+    // --- Chart Update Function ---
+    function updateChart(principal, interest) {
+        console.log('Updating chart with data:', { principal, interest }); // Debugging: Chart data received
 
-    <div class="footer-copyright">
-        &copy; 2025 Aryal & Logistics LLC. All rights reserved.
-    </div>
+        if (compoundChart) {
+            compoundChart.destroy(); // Destroy existing chart before creating a new one
+        }
 
-    <script src="../scripts/compoundinterestcalc-script.js"></script>
-</body>
-</html>
+        // Only create chart if there's data to display
+        if (principal > 0 || interest > 0) {
+            compoundChart = new Chart(compoundChartCanvas, {
+                type: 'pie',
+                data: {
+                    labels: ['Total Principal Invested', 'Total Interest Earned'],
+                    datasets: [{
+                        data: [principal, interest],
+                        backgroundColor: ['#007bff', '#28a745'], // Blue for Principal, Green for Interest
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom', // Place legend below the chart
+                        },
+                        title: {
+                            display: false, // Title handled by HTML h3
+                        }
+                    }
+                }
+            });
+            console.log('Compound Chart created.'); // Debugging log
+        } else {
+            // Clear canvas if no data (e.g., all inputs are zero or invalid)
+            const ctx = compoundChartCanvas.getContext('2d');
+            ctx.clearRect(0, 0, compoundChartCanvas.width, compoundChartCanvas.height);
+            console.log('No data for Compound Chart, canvas cleared.'); // Debugging log
+        }
+    }
+
+    // --- Event Listeners for Live Update and Button ---
+    const debouncedCalculate = debounce(calculateCompoundInterest, 300); // Debounce for 300ms
+
+    // Attach 'input' listeners to number fields for live updates
+    initialInvestmentInput.addEventListener('input', debouncedCalculate);
+    annualContributionInput.addEventListener('input', debouncedCalculate);
+    annualInterestRateInput.addEventListener('input', debouncedCalculate);
+    investmentPeriodInput.addEventListener('input', debouncedCalculate);
+
+    // Attach 'change' listener to the select element for live updates
+    compoundingFrequencySelect.addEventListener('change', debouncedCalculate);
+
+    // Attach 'click' listener to the calculate button (for immediate calculation if preferred)
+    calculateBtn.addEventListener('click', calculateCompoundInterest);
+
+    // Initial calculation on page load to display default values
+    calculateCompoundInterest();
+});
