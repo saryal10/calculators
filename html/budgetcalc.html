@@ -5,10 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Calculator & Planner</title>
     <link rel="stylesheet" href="style.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex; /* Changed to flex for overall page layout */
+            flex-direction: column; /* Stack content vertically */
+            justify-content: space-between; /* Push footer to bottom */
+            align-items: center; /* Center content horizontally */
+            min-height: 100vh; /* Make sure body takes full viewport height */
+        }
+
         .calculator-container {
-            max-width: 600px; /* Wider for more content */
+            max-width: 600px;
             padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px; /* Add margin below calculator before footer */
+            width: 100%; /* Allow container to take up max-width */
+            box-sizing: border-box; /* Include padding in width */
         }
 
         .section-title {
@@ -23,13 +44,13 @@
         .income-item, .expense-item {
             display: flex;
             align-items: center;
-            gap: 10px; /* Space between elements in a row */
-            margin-bottom: 15px; /* Space between rows */
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .income-item label, .expense-item label {
-            flex: 2; /* Label takes more space */
-            text-align: right; /* Align label text to the right */
+            flex: 2;
+            text-align: right;
             font-size: 0.95em;
             color: #555;
             padding-right: 10px;
@@ -37,7 +58,7 @@
 
         .income-item input[type="text"],
         .expense-item input[type="text"] {
-            flex: 3; /* Name input takes more space */
+            flex: 3;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -46,12 +67,12 @@
 
         .income-item input[type="number"],
         .expense-item input[type="number"] {
-            flex: 2; /* Value input takes proportional space */
+            flex: 2;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
-            text-align: right; /* Numbers align right */
+            text-align: right;
         }
 
         .remove-btn {
@@ -63,7 +84,7 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-size: 0.8em;
-            white-space: nowrap; /* Prevent button text from wrapping */
+            white-space: nowrap;
         }
         .remove-btn:hover {
             background-color: #c82333;
@@ -79,7 +100,7 @@
             transition: background-color 0.3s ease;
             margin-top: 10px;
             font-size: 1em;
-            width: 100%; /* Make add button full width */
+            width: 100%;
             box-sizing: border-box;
         }
         .add-item-btn:hover {
@@ -90,6 +111,15 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .summary-details {
+            flex: 1;
+            min-width: 250px;
         }
 
         .results p.label {
@@ -99,16 +129,90 @@
             font-weight: normal;
         }
         .results p.value {
-            font-size: 1.8em; /* Larger for totals */
+            font-size: 1.8em;
             font-weight: bold;
             margin-top: 0;
             margin-bottom: 15px;
         }
         .results #netBalance.positive {
-            color: #28a745; /* Green for surplus */
+            color: #28a745;
         }
         .results #netBalance.negative {
-            color: #dc3545; /* Red for deficit */
+            color: #dc3545;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer specific styles */
+        .footer-copyright {
+            width: 100%; /* Take full width */
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto; /* Pushes the footer to the bottom */
+            font-size: 0.85em;
+            color: #777;
+            background-color: #e9ecef; /* Slightly different background for visual separation */
+            border-top: 1px solid #ddd;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .results {
+                flex-direction: column;
+                align-items: center;
+            }
+            .summary-details, .chart-container {
+                min-width: unset;
+                width: 100%;
+            }
+            .income-item, .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .income-item label, .expense-item label {
+                text-align: left;
+                padding-right: 0;
+            }
+            .income-item input, .expense-item input {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .remove-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -176,21 +280,29 @@
         <button id="addExpenseBtn" class="add-item-btn">Add Another Expense</button>
 
         <div class="results">
-            <h2>Summary:</h2>
-            <p class="label">Total Monthly Income:</p>
-            <p id="totalIncome" class="value">$0.00</p>
+            <div class="summary-details">
+                <h2>Summary:</h2>
+                <p class="label">Total Monthly Income:</p>
+                <p id="totalIncome" class="value">$0.00</p>
 
-            <p class="label">Total Monthly Expenses:</p>
-            <p id="totalExpenses" class="value">$0.00</p>
+                <p class="label">Total Monthly Expenses:</p>
+                <p id="totalExpenses" class="value">$0.00</p>
 
-            <p class="label">Net Monthly Balance:</p>
-            <p id="netBalance" class="value positive">$0.00</p>
+                <p class="label">Net Monthly Balance:</p>
+                <p id="netBalance" class="value positive">$0.00</p>
+            </div>
+            <div class="chart-container">
+                <h3>Income vs. Expenses</h3>
+                <canvas id="budgetChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
-     <div class="footer-copyright">
+    </div>
+    
+    <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
-    </div>
+
     <script src="../scripts/budgetcalc-script.js"></script>
 </body>
 </html>
