@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const letters = '0123456789ABCDEF';
         let color = '#';
         for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+            color += letters.push(Math.floor(Math.random() * 16));
         }
         return color;
     }
@@ -32,13 +32,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const label = document.createElement('label');
         label.textContent = labelText;
 
+        const inputGroup = document.createElement('div'); // Container for inputs and link
+        inputGroup.classList.add('input-group');
+
         const nameInput = document.createElement('input');
         nameInput.type = 'text';
         nameInput.value = labelText; // Pre-fill with labelText
         nameInput.placeholder = `e.g., ${labelText}`;
         // Add input event listener for real-time updates
         nameInput.addEventListener('input', calculateNetWorth);
-
 
         const valueInput = document.createElement('input');
         valueInput.type = 'number';
@@ -49,25 +51,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add input event listener for real-time updates
         valueInput.addEventListener('input', calculateNetWorth);
 
+        inputGroup.appendChild(nameInput);
+        inputGroup.appendChild(valueInput);
 
-        const removeBtn = document.createElement('button');
-        removeBtn.classList.add('remove-btn');
-        removeBtn.textContent = 'Remove';
-        // Use class for initial items instead of inline style for visibility
+        const removeLink = document.createElement('a');
+        removeLink.href = '#'; // Prevent page jump
+        removeLink.classList.add('remove-link');
+        removeLink.textContent = 'Remove';
         if (!removable) {
-            removeBtn.classList.add('initial-item');
-            removeBtn.textContent = ''; // Clear text for hidden button
+            removeLink.style.display = 'none'; // Hide for initial items
         } else {
-            removeBtn.addEventListener('click', function() {
+            removeLink.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent link navigation
                 itemDiv.remove();
                 calculateNetWorth(); // Recalculate after removing
             });
         }
 
         itemDiv.appendChild(label);
-        itemDiv.appendChild(nameInput);
-        itemDiv.appendChild(valueInput);
-        itemDiv.appendChild(removeBtn);
+        itemDiv.appendChild(inputGroup);
+        itemDiv.appendChild(removeLink);
 
         return itemDiv;
     }
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalAssets = 0;
         const assetDataForChart = [];
         document.querySelectorAll('.asset-item').forEach(item => {
-            const nameInput = item.querySelector('input[type="text"]');
+            const nameInput = item.querySelector('input.asset-value:previous-sibling');
             const valueInput = item.querySelector('.asset-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Asset';
@@ -104,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalLiabilities = 0;
         const liabilityDataForChart = [];
         document.querySelectorAll('.liability-item').forEach(item => {
-            const nameInput = item.querySelector('input[type="text"]');
+            const nameInput = item.querySelector('input.liability-value:previous-sibling');
             const valueInput = item.querySelector('.liability-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Liability';
@@ -191,21 +194,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Attach event listeners to initial input fields for real-time updates
     // This is crucial for the pre-existing inputs
-    document.querySelectorAll('.asset-value, .liability-value, .asset-item input[type="text"], .liability-item input[type="text"]')
+    document.querySelectorAll('.asset-item input, .liability-item input')
         .forEach(input => {
             input.addEventListener('input', calculateNetWorth);
         });
 
-    // Initial setup of remove button visibility and content for default items on page load
-    document.querySelectorAll('.remove-btn[style*="visibility: hidden"]').forEach(button => {
-        button.classList.add('initial-item');
-        button.textContent = ''; // Ensure no text is visible
-        button.style.visibility = ''; // Remove inline style to let CSS class handle it
-    });
-    // This CSS rule should already be in your <style> block, but ensure it's there
-    // If you are injecting it via JS, it's fine, but better in CSS for static pages.
-    // document.styleSheets[0].insertRule('.remove-btn.initial-item { display: none; }', 0);
-
+    // Initial setup for default items (hiding the remove link for them)
+    document.querySelectorAll('#assetInputs .asset-item, #liabilityInputs .liability-item')
+        .forEach(item => {
+            const removeLink = item.querySelector('.remove-link');
+            if (removeLink) {
+                removeLink.style.display = 'none';
+            }
+        });
 
     // Initial calculation on page load
     calculateNetWorth();
