@@ -24,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 960px; /* Increased width to accommodate two charts side-by-side */
+            max-width: 960px; /* Still wide enough for results and chart, or chart below on smaller screens */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -143,11 +143,11 @@
         }
 
         .chart-container {
-            flex: 1; /* Allows charts to grow and shrink */
-            min-width: 320px; /* Minimum width for each chart */
-            max-width: 450px; /* Max width to ensure they don't get too big */
+            flex: 1; /* Allows chart to grow and shrink */
+            min-width: 320px; /* Minimum width for the chart */
+            max-width: 450px; /* Max width to ensure it doesn't get too big */
             height: 350px; /* Fixed height for the chart container */
-            position: relative;
+            position: relative; /* Needed for Chart.js responsiveness */
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px;
@@ -202,10 +202,10 @@
         /* Responsive adjustments */
         @media (max-width: 960px) { /* Adjust breakpoint for chart stacking */
             .calculator-container {
-                max-width: 600px; /* Revert to single chart width for tablets */
+                max-width: 600px; /* Revert to single column width for tablets */
             }
             .results {
-                flex-direction: column; /* Stack summary and charts vertically */
+                flex-direction: column; /* Stack summary and chart vertically */
                 align-items: center;
             }
             .results-summary {
@@ -287,12 +287,8 @@
                 <p class="value saved-highlight" id="timeSaved">0 Years, 0 Months</p>
             </div>
             <div class="chart-container">
-                <h3>Total Interest Comparison</h3>
-                <canvas id="interestChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Payoff Time Comparison</h3>
-                <canvas id="payoffTimeChart"></canvas>
+                <h3>Total Debt Cost Breakdown (with Extra Payments)</h3>
+                <canvas id="debtCostChart"></canvas>
             </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
