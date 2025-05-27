@@ -133,7 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true, // CHANGED: Set to true
+                    aspectRatio: 1, // ADDED: Forces a 1:1 (square) aspect ratio
                     plugins: {
                         legend: {
                             position: 'bottom', // Place legend below the chart
