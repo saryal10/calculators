@@ -12,27 +12,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Input elements
     const grossIncomeInput = document.getElementById('grossIncome');
     const totalDeductionsInput = document.getElementById('totalDeductions');
-    const calculateBtn = document.getElementById('calculateBtn');
+    const calculateBtn = document.getElementById('calculateBtn'); // Keeping button reference for clarity
 
     // Output elements
     const taxableIncomeSpan = document.getElementById('taxableIncome');
     const estimatedTaxSpan = document.getElementById('estimatedTax');
     const afterTaxIncomeSpan = document.getElementById('afterTaxIncome');
+    const taxDistributionChartCanvas = document.getElementById('taxDistributionChart');
 
-    calculateBtn.addEventListener('click', calculateTax);
+    let taxChart; // Variable to hold the Chart.js instance
 
+    // Function to calculate tax and update UI/Chart
     function calculateTax() {
         const grossIncome = parseFloat(grossIncomeInput.value);
         const totalDeductions = parseFloat(totalDeductionsInput.value);
 
         // --- Input Validation ---
+        // Basic validation - ensure inputs are numbers and non-negative
         if (isNaN(grossIncome) || grossIncome < 0) {
-            alert('Please enter a valid gross annual income.');
-            return;
+            taxableIncomeSpan.textContent = '$0.00';
+            estimatedTaxSpan.textContent = '$0.00';
+            afterTaxIncomeSpan.textContent = '$0.00';
+            updateChart([], []); // Clear chart
+            return; // Stop calculation
         }
         if (isNaN(totalDeductions) || totalDeductions < 0) {
-            alert('Please enter a valid total deductions amount.');
-            return;
+            taxableIncomeSpan.textContent = '$0.00';
+            estimatedTaxSpan.textContent = '$0.00';
+            afterTaxIncomeSpan.textContent = '$0.00';
+            updateChart([], []); // Clear chart
+            return; // Stop calculation
         }
 
         // Calculate taxable income
@@ -60,8 +69,96 @@ document.addEventListener('DOMContentLoaded', function() {
         taxableIncomeSpan.textContent = `$${taxableIncome.toFixed(2)}`;
         estimatedTaxSpan.textContent = `$${estimatedTax.toFixed(2)}`;
         afterTaxIncomeSpan.textContent = `$${afterTaxIncome.toFixed(2)}`;
+
+        // --- Update Chart ---
+        // We'll chart the distribution of Gross Income: Deductions, Tax Paid, and What's Left (After-Tax)
+        const chartLabels = ["Deductions", "Estimated Tax", "After-Tax Income"];
+        const chartData = [totalDeductions, estimatedTax, afterTaxIncome];
+        
+        // Filter out categories that are zero or negative for a cleaner chart, unless all are zero.
+        const filteredLabels = [];
+        const filteredData = [];
+        
+        if (totalDeductions > 0 || estimatedTax > 0 || afterTaxIncome > 0) { // Only show chart if there's positive income/tax/deductions
+            if (totalDeductions > 0) {
+                filteredLabels.push("Deductions");
+                filteredData.push(totalDeductions);
+            }
+            if (estimatedTax > 0) {
+                filteredLabels.push("Estimated Tax");
+                filteredData.push(estimatedTax);
+            }
+            if (afterTaxIncome > 0) {
+                filteredLabels.push("After-Tax Income");
+                filteredData.push(afterTaxIncome);
+            }
+        }
+        
+        updateChart(filteredLabels, filteredData);
     }
 
-    // Initial calculation on page load
+    // Function to initialize or update the Chart.js Pie Chart
+    function updateChart(labels, data) {
+        if (taxChart) {
+            taxChart.destroy(); // Destroy previous chart instance if it exists
+        }
+
+        // Only create chart if there's valid data to display
+        if (data.length > 0 && data.some(val => val > 0)) { // Ensure there's at least one positive slice
+            taxChart = new Chart(taxDistributionChartCanvas, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(153, 102, 255, 0.7)', // Purple for Deductions
+                            'rgba(255, 99, 132, 0.7)',  // Red for Estimated Tax
+                            'rgba(75, 192, 192, 0.7)'   // Green for After-Tax Income
+                        ],
+                        borderColor: '#fff', // White border between slices
+                        borderWidth: 1,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allows chart to take specified height/width
+                    plugins: {
+                        legend: {
+                            position: 'right', // Position legend on the right
+                        },
+                        title: {
+                            display: true,
+                            text: 'Gross Income Distribution',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                                    const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
+                                    return `${context.label}: $${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // --- Real-time Update Setup ---
+    // Attach input event listeners to all relevant input fields
+    grossIncomeInput.addEventListener('input', calculateTax);
+    totalDeductionsInput.addEventListener('input', calculateTax);
+
+    // Initial calculation on page load to display default values and chart
     calculateTax();
+
+    // Optionally, you can still keep the button listener if you want a manual trigger
+    // calculateBtn.addEventListener('click', calculateTax);
 });
