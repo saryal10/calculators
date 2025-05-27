@@ -117,13 +117,21 @@
             color: #007bff; /* Blue for results */
         }
 
-        /* NEW: Chart container styles */
+        /* Chart container styles */
         .chart-container {
             width: 100%;
             max-width: 350px; /* Adjust max-width for the chart */
             height: 250px; /* Fixed height for the canvas */
             margin: 20px auto 0 auto; /* Center the chart horizontally */
             position: relative;
+        }
+
+        /* NEW: Style for chart explanation */
+        .chart-explanation {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 15px; /* Space between chart and explanation */
+            text-align: center;
         }
 
         .back-link {
@@ -188,6 +196,7 @@
             <div class="chart-container">
                 <canvas id="rule72Chart"></canvas>
             </div>
+            <p class="chart-explanation">This bar chart visually represents the calculated result: either the estimated years for your investment to double or the annual rate of return required.</p>
         </div>
 
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
