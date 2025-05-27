@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalExpensesSpan = document.getElementById('totalExpenses');
     const netBalanceSpan = document.getElementById('netBalance');
 
+    const budgetChartCanvas = document.getElementById('budgetChart'); // Get the canvas element
+    let budgetChart; // Variable to hold the Chart.js instance
+
     // Function to create a new input row
     function createInputRow(type, labelText = '', value = '', removable = true) {
         const itemDiv = document.createElement('div');
@@ -90,21 +93,92 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             netBalanceSpan.classList.add('negative');
         }
+
+        // Update the pie chart
+        updatePieChart(totalIncome, totalExpenses);
     }
 
     // Add event listeners using event delegation for dynamically added inputs
     incomeInputsContainer.addEventListener('input', function(event) {
-        if (event.target.classList.contains('income-value')) {
+        // Only trigger recalculation if a value input was changed
+        if (event.target.classList.contains('income-value') || event.target.type === 'text') {
             calculateBudget();
         }
     });
 
     expenseInputsContainer.addEventListener('input', function(event) {
-        if (event.target.classList.contains('expense-value')) {
+        // Only trigger recalculation if a value input was changed
+        if (event.target.classList.contains('expense-value') || event.target.type === 'text') {
             calculateBudget();
         }
     });
 
-    // Initial calculation on page load
+    // Function to create or update the pie chart
+    function updatePieChart(income, expenses) {
+        const ctx = budgetChartCanvas.getContext('2d');
+
+        // Destroy existing chart instance if it exists to prevent multiple charts rendering
+        if (budgetChart) {
+            budgetChart.destroy();
+        }
+
+        // Only show chart if there's some income or expense to avoid empty pie
+        if (income > 0 || expenses > 0) {
+            budgetChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Total Income', 'Total Expenses'],
+                    datasets: [{
+                        data: [income, expenses],
+                        backgroundColor: [
+                            '#28a745', // Green for Income
+                            '#dc3545'  // Red for Expenses
+                        ],
+                        hoverBackgroundColor: [
+                            '#218838',
+                            '#c82333'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allows the chart to fill its container
+                    plugins: {
+                        title: {
+                            display: false, // We added a separate H3 title in HTML
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom', // Place legend at the bottom
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // If no data, ensure no chart is displayed or show a message
+            ctx.clearRect(0, 0, budgetChartCanvas.width, budgetChartCanvas.height); // Clear canvas
+            // You could also add a message to the canvas or its container
+        }
+    }
+
+    // Initial calculation on page load to display results and chart immediately
     calculateBudget();
 });
