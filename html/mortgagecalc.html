@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mortgage Calculator</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 480px; /* Consistent width with other calculators */
+            max-width: 960px; /* Increased width to accommodate two charts side-by-side on larger screens */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -87,22 +88,36 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around; /* Distribute items with space */
+            gap: 20px; /* Space between flex items */
+        }
+
+        .results-summary {
+            flex: 1; /* Allows it to grow and shrink */
+            min-width: 280px; /* Minimum width for the summary section */
+            text-align: left;
+            margin-bottom: 20px; /* Add margin below summary before charts on smaller screens */
         }
 
         .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+            margin-top: 0;
             color: #333;
-            font-size: 1.5em; /* Adjusted for better hierarchy */
+            font-size: 1.5em;
             margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
         }
 
         .results h3 {
             color: #555;
             font-size: 1em;
             font-weight: normal;
-            margin-top: -5px; /* Pull closer to h2 */
+            margin-top: -5px;
             margin-bottom: 15px;
+            text-align: center;
+            width: 100%;
         }
 
         .results p {
@@ -111,12 +126,46 @@
             font-weight: bold;
             margin-top: 0;
             margin-bottom: 15px;
+            text-align: center;
+            width: 100%;
         }
 
         hr {
             border: none;
             border-top: 1px solid #ddd;
             margin: 20px 0;
+            width: 100%;
+        }
+
+        .chart-container {
+            flex: 1; /* Allows charts to grow and shrink */
+            min-width: 320px; /* Minimum width for each chart */
+            max-width: 450px; /* Max width to ensure they don't get too big */
+            height: 350px; /* Fixed height for the chart container */
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px; /* Space below charts on smaller screens */
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 300px; /* Adjust canvas height to fit container */
         }
 
         .back-link {
@@ -134,30 +183,52 @@
 
         /* Footer specific styles */
         .footer-copyright {
-            width: 100%; /* Take full width */
+            width: 100%;
             text-align: center;
             padding: 20px 0;
-            margin-top: auto; /* Pushes the footer to the bottom in a flex container */
+            margin-top: auto;
             font-size: 0.85em;
             color: #777;
-            background-color: #e9ecef; /* Slightly different background for visual separation */
+            background-color: #e9ecef;
             border-top: 1px solid #ddd;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
         }
 
         /* Responsive adjustments */
+        @media (max-width: 960px) { /* Adjust breakpoint for chart stacking */
+            .calculator-container {
+                max-width: 600px; /* Revert to single chart width for tablets */
+            }
+            .results {
+                flex-direction: column; /* Stack summary and charts vertically */
+                align-items: center;
+            }
+            .results-summary {
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
+            }
+            .chart-container {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width on small screens */
+                max-width: 450px; /* Keep a max-width for charts even when stacked */
+            }
+        }
         @media (max-width: 600px) {
             .calculator-container {
                 padding: 20px;
             }
             .input-group {
-                flex-direction: column; /* Stack inputs vertically */
+                flex-direction: column;
                 align-items: flex-start;
             }
             .input-group label,
             .input-group input,
             .input-group select {
-                width: 100%; /* Ensure inputs take full width */
+                width: 100%;
+            }
+            .results h2, .results h3, .results p, hr {
+                text-align: center;
+                width: 100%;
             }
         }
     </style>
@@ -191,22 +262,32 @@
         </div>
         <button id="calculateBtn">Calculate Mortgage</button>
         <div class="results">
-            <h2>Your Estimated Monthly Payment:</h2>
-            <p id="monthlyPayment">$0.00</p>
-            <h3>(Principal & Interest)</h3>
-            <h2>Estimated Monthly Property Tax:</h2>
-            <p id="monthlyPropertyTax">$0.00</p>
-            <h2>Monthly HOA Fees:</h2>
-            <p id="monthlyHoa">$0.00</p>
-            <h2>Estimated Monthly PMI:</h2>
-            <p id="monthlyPmi">$0.00</p>
-            <hr>
-            <h2>Total Estimated Monthly Payment:</h2>
-            <p id="totalMonthlyPayment">$0.00</p>
-            <h2>Total Interest Paid:</h2>
-            <p id="totalInterest">$0.00</p>
-            <h2>Total Cost of Loan (with Interest):</h2>
-            <p id="totalCost">$0.00</p>
+            <div class="results-summary">
+                <h2>Your Estimated Monthly Payment:</h2>
+                <p id="monthlyPayment">$0.00</p>
+                <h3>(Principal & Interest)</h3>
+                <h2>Estimated Monthly Property Tax:</h2>
+                <p id="monthlyPropertyTax">$0.00</p>
+                <h2>Monthly HOA Fees:</h2>
+                <p id="monthlyHoa">$0.00</p>
+                <h2>Estimated Monthly PMI:</h2>
+                <p id="monthlyPmi">$0.00</p>
+                <hr>
+                <h2>Total Estimated Monthly Payment:</h2>
+                <p id="totalMonthlyPayment">$0.00</p>
+                <h2>Total Interest Paid:</h2>
+                <p id="totalInterest">$0.00</p>
+                <h2>Total Cost of Loan (with Interest):</h2>
+                <p id="totalCost">$0.00</p>
+            </div>
+            <div class="chart-container">
+                <h3>Monthly Payment Breakdown</h3>
+                <canvas id="mortgageChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Total Loan Cost Breakdown</h3>
+                <canvas id="totalCostChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
