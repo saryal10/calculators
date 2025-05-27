@@ -42,12 +42,15 @@
             padding-bottom: 5px;
         }
 
+        /* --- KEY FIXES HERE --- */
         .income-item, .expense-item {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            align-items: center; /* Aligns items vertically in the middle */
+            gap: 10px; /* Space between elements */
             margin-bottom: 15px;
-            flex-wrap: nowrap; /* Keep items on one line if possible */
+            flex-wrap: nowrap; /* Prevent wrapping on one line if possible */
+            /* Add min-width to the container to ensure it doesn't collapse too much */
+            min-width: 300px; /* Adjust based on expected smallest screen size before stacking */
         }
 
         .income-item label, .expense-item label {
@@ -56,32 +59,35 @@
             font-size: 0.95em;
             color: #555;
             padding-right: 10px;
-            flex-shrink: 0; /* Prevent label from shrinking */
+            flex-shrink: 0; /* Prevents label from shrinking */
+            /* Align label text to baseline for better vertical alignment with inputs */
+            align-self: baseline;
+            padding-top: 8px; /* Match input padding to help vertical alignment */
         }
 
         .income-item input[type="text"],
         .expense-item input[type="text"] {
-            flex: 2; /* Increased flex for the text input to take more space */
+            flex: 1 1 120px; /* flex-grow: 1, flex-shrink: 1, flex-basis: 120px */
+            /* This means it will grow, shrink, and prefers a width of 120px. */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             box-sizing: border-box;
-            min-width: 80px; /* Reasonable min-width */
-            max-width: 180px; /* Add a max-width to control overall size */
+            /* Removed explicit min-width and max-width as flex-basis handles preference */
+            /* You can re-add min/max if you need stricter control, e.g., min-width: 80px; */
         }
 
         .income-item input[type="number"],
         .expense-item input[type="number"] {
-            flex: 1; /* Gives the number input a consistent flex basis */
+            flex: 0 0 80px; /* flex-grow: 0, flex-shrink: 0, flex-basis: 80px */
+            /* This means it will NOT grow or shrink, and maintains a fixed width of 80px. */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             text-align: right;
             box-sizing: border-box;
-            min-width: 60px; /* Reasonable min-width */
-            max-width: 100px; /* Add a max-width to control overall size */
         }
 
         .remove-btn {
@@ -89,20 +95,25 @@
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 6px 10px; /* Decreased padding for smaller button */
+            padding: 6px 10px; /* Decreased padding */
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-size: 0.75em; /* Decreased font size */
             white-space: nowrap;
-            flex-shrink: 0; /* Prevent button from shrinking */
-            height: 34px; /* Set a fixed height to align with inputs */
-            display: flex; /* Use flex to center text vertically if needed */
+            flex-shrink: 0; /* Prevents button from shrinking */
+            flex-grow: 0; /* Prevents button from growing */
+            width: 70px; /* Fixed width for the button itself */
+            height: 36px; /* A bit taller to account for padding/font-size and align with inputs */
+            display: flex;
             align-items: center; /* Vertically center text */
             justify-content: center; /* Horizontally center text */
+            box-sizing: border-box; /* Include padding/border in width/height */
         }
         .remove-btn:hover {
             background-color: #c82333;
         }
+        /* --- END KEY FIXES --- */
+
 
         .add-item-btn {
             background-color: #28a745;
@@ -221,14 +232,18 @@
                 text-align: left;
                 padding-right: 0;
                 width: auto; /* Allow label to take natural width */
+                padding-top: 0; /* Remove padding when stacked vertically */
             }
             .income-item input, .expense-item input {
                 width: 100%;
                 box-sizing: border-box;
+                /* Remove flex properties when stacked vertically */
+                flex: none;
             }
             .remove-btn {
                 width: 100%; /* Make button full width when stacked */
                 height: auto; /* Allow height to adjust */
+                flex: none; /* Remove flex properties when stacked vertically */
             }
         }
     </style>
@@ -244,7 +259,8 @@
                 <label>Main Income:</label>
                 <input type="text" value="Salary">
                 <input type="number" class="income-value" value="3500">
-                <button class="remove-btn initial-item"></button> </div>
+                <button class="remove-btn initial-item"></button>
+            </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
 
@@ -254,7 +270,8 @@
                 <label>Housing (Rent/Mortgage):</label>
                 <input type="text" value="Rent/Mortgage">
                 <input type="number" class="expense-value" value="1200">
-                <button class="remove-btn initial-item"></button> </div>
+                <button class="remove-btn initial-item"></button>
+            </div>
             <div class="expense-item">
                 <label>Utilities:</label>
                 <input type="text" value="Utilities">
