@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>General Loan Payment Calculator</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 480px; /* Consistent width with other calculators */
+            max-width: 960px; /* Increased width to accommodate chart next to results */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -87,12 +88,26 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: space-around; /* Distribute items with space */
+            gap: 20px; /* Space between flex items */
+        }
+
+        .results-summary {
+            flex: 1; /* Allows it to grow and shrink */
+            min-width: 280px; /* Minimum width for the summary section */
+            text-align: left;
+            margin-bottom: 20px; /* Add margin below summary before charts on smaller screens */
         }
 
         .results h2 {
             margin-top: 0; /* Remove default h2 margin */
             color: #333;
+            font-size: 1.5em; /* Adjusted for better hierarchy */
+            margin-bottom: 10px;
+            text-align: center; /* Center the title */
+            width: 100%; /* Ensure heading takes full width in summary */
         }
 
         .results p.label {
@@ -100,6 +115,8 @@
             color: #555;
             margin-bottom: 5px;
             font-weight: normal;
+            text-align: center; /* Center the label text */
+            width: 100%;
         }
         .results p.value {
             font-size: 1.4em;
@@ -107,9 +124,10 @@
             font-weight: bold;
             margin-top: 0;
             margin-bottom: 15px;
+            text-align: center; /* Center results values */
+            width: 100%;
         }
         /* Specific styles for loan results can be added here if desired */
-        /* For example: */
         #monthlyPayment {
             color: #28a745; /* Green for monthly payment */
             font-size: 1.5em;
@@ -121,6 +139,37 @@
         #totalCost {
             color: #007bff; /* Blue for total cost */
             font-size: 1.5em;
+        }
+
+        .chart-container {
+            flex: 1; /* Allows chart to grow and shrink */
+            min-width: 320px; /* Minimum width for the chart */
+            max-width: 450px; /* Max width to ensure it doesn't get too big */
+            height: 350px; /* Fixed height for the chart container */
+            position: relative; /* Needed for Chart.js responsiveness */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px; /* Space below charts on smaller screens */
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 300px; /* Adjust canvas height to fit container */
         }
 
 
@@ -151,6 +200,24 @@
         }
 
         /* Responsive adjustments */
+        @media (max-width: 960px) { /* Adjust breakpoint for chart stacking */
+            .calculator-container {
+                max-width: 600px; /* Revert to single chart width for tablets/smaller desktops */
+            }
+            .results {
+                flex-direction: column; /* Stack summary and charts vertically */
+                align-items: center;
+            }
+            .results-summary {
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
+            }
+            .chart-container {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width on small screens */
+                max-width: 450px; /* Keep a max-width for charts even when stacked */
+            }
+        }
         @media (max-width: 600px) {
             .calculator-container {
                 padding: 20px;
@@ -163,6 +230,10 @@
             .input-group input,
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
+            }
+            .results h2, .results p.label, .results p.value {
+                text-align: center;
+                width: 100%;
             }
         }
     </style>
@@ -188,15 +259,21 @@
         <button id="calculateBtn">Calculate Loan</button>
 
         <div class="results">
-            <h2>Your Loan Details:</h2>
-            <p class="label">Estimated Monthly Payment:</p>
-            <p id="monthlyPayment" class="value">$0.00</p>
+            <div class="results-summary">
+                <h2>Your Loan Details:</h2>
+                <p class="label">Estimated Monthly Payment:</p>
+                <p id="monthlyPayment" class="value">$0.00</p>
 
-            <p class="label">Total Interest Paid:</p>
-            <p id="totalInterest" class="value">$0.00</p>
+                <p class="label">Total Interest Paid:</p>
+                <p id="totalInterest" class="value">$0.00</p>
 
-            <p class="label">Total Cost of Loan (Principal + Interest):</p>
-            <p id="totalCost" class="value">$0.00</p>
+                <p class="label">Total Cost of Loan (Principal + Interest):</p>
+                <p id="totalCost" class="value">$0.00</p>
+            </div>
+            <div class="chart-container">
+                <h3>Total Loan Cost Breakdown</h3>
+                <canvas id="loanCostChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
