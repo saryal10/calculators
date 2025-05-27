@@ -32,6 +32,27 @@
             margin-bottom: 20px; /* Add margin below calculator before footer */
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
+            display: flex; /* Make it a flex container */
+            flex-direction: column; /* Stack children vertically */
+            align-items: center; /* Center items horizontally within the container */
+        }
+
+        /* NEW CSS for centering the h1 title */
+        .calculator-container h1 {
+            width: 100%; /* Ensure h1 takes full width of its parent */
+            text-align: center; /* Center the text within the h1 */
+            margin-top: 0; /* Adjust spacing as needed */
+            margin-bottom: 10px; /* Adjust spacing as needed */
+            color: #007bff; /* Optional: Apply a color as in the amortization calculator */
+        }
+
+        /* Center the paragraph below the title */
+        .calculator-container p {
+            width: 100%;
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before sections */
+            color: #555;
         }
 
         .section-title {
@@ -41,6 +62,8 @@
             margin-bottom: 15px;
             border-bottom: 2px solid #eee;
             padding-bottom: 5px;
+            text-align: center; /* Center align section titles too */
+            width: 100%; /* Ensure it takes full width for centering */
         }
 
         .asset-item, .liability-item {
@@ -49,6 +72,8 @@
             gap: 10px; /* Space between elements in a row */
             margin-bottom: 15px; /* Space between rows */
             flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            width: 100%; /* Ensure items take full width to align properly within flex column container */
+            justify-content: center; /* Center content when it wraps */
         }
 
         .asset-item label, .liability-item label {
@@ -126,6 +151,7 @@
             flex-wrap: wrap; /* Allow wrapping of children */
             justify-content: center; /* Center content when not enough space for side-by-side */
             gap: 20px; /* Space between summary and charts-group */
+            width: 100%; /* Ensure results section takes full width */
         }
 
         .summary-details {
@@ -205,6 +231,7 @@
             color: #007bff;
             text-decoration: none;
             font-size: 0.95em;
+            width: 100%; /* Ensure it centers within the calculator-container */
         }
 
         .back-link:hover {
@@ -241,14 +268,18 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px; /* Less padding on very small screens */
+            }
             .calculator-container {
-                padding: 20px;
+                padding: 15px; /* Less padding inside container on small screens */
                 max-width: 100%; /* Ensure container fills small screens */
             }
             .asset-item, .liability-item {
                 flex-direction: column; /* Stack items vertically */
                 align-items: flex-start;
                 gap: 5px; /* Reduce gap when stacked */
+                width: 100%; /* Ensure they take full width */
             }
             .asset-item label, .liability-item label {
                 text-align: left; /* Align labels left when stacked */
