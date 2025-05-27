@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credit Card Payoff Calculator</title>
-    <link rel="stylesheet" href="../css/style.css"> 
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 480px; /* Consistent width with other calculators */
+            max-width: 600px; /* Increased max-width to accommodate charts */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -32,7 +33,7 @@
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
         }
-        
+
         .input-group {
             margin-bottom: 15px;
             display: flex;
@@ -88,8 +89,18 @@
             padding-top: 20px;
             border-top: 2px solid #eee;
             text-align: center; /* Center the results text */
+            display: flex; /* Make results section a flex container */
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: space-around; /* Distribute space */
+            gap: 20px; /* Space between summary and charts */
         }
-        
+
+        .results-summary {
+            flex: 1; /* Allow summary to take available space */
+            min-width: 280px; /* Minimum width for summary */
+            text-align: left; /* Align summary text left */
+        }
+
         .results h2 {
             margin-top: 0; /* Remove default h2 margin */
             color: #333;
@@ -121,6 +132,34 @@
             color: #28a745; /* Green for savings */
             font-weight: bold;
             font-size: 1.5em;
+        }
+
+        .chart-wrapper {
+            flex: 1; /* Allow charts to take available space */
+            min-width: 280px; /* Minimum width for each chart */
+            max-width: 350px; /* Max width for each chart */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+        }
+
+        .chart-wrapper canvas {
+            max-width: 100%;
+            height: 250px; /* Fixed height for consistent chart size */
+        }
+
+        .chart-wrapper h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #333;
+            font-size: 1.1em;
+            border-bottom: none; /* Remove border for chart titles */
         }
 
         .back-link {
@@ -163,6 +202,15 @@
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
             }
+            .results {
+                flex-direction: column; /* Stack summary and charts vertically */
+                align-items: center;
+            }
+            .results-summary, .chart-wrapper {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
+            }
         }
     </style>
 </head>
@@ -191,36 +239,48 @@
         <button id="calculateBtn">Calculate Payoff</button>
 
         <div class="results">
-            <h2>Results:</h2>
+            <div class="results-summary">
+                <h2>Results:</h2>
 
-            <h3>With Current Monthly Payment ($<span id="displayMinPayment">0.00</span>):</h3>
-            <p class="label">Time to Payoff:</p>
-            <p class="value" id="minPaymentTime">0 Years, 0 Months</p>
-            <p class="label">Total Interest Paid:</p>
-            <p class="value" id="minPaymentInterest">$0.00</p>
-            <p class="label">Total Amount Paid:</p>
-            <p class="value" id="minPaymentTotal">$0.00</p>
+                <h3>With Current Monthly Payment ($<span id="displayMinPayment">0.00</span>):</h3>
+                <p class="label">Time to Payoff:</p>
+                <p class="value" id="minPaymentTime">0 Years, 0 Months</p>
+                <p class="label">Total Interest Paid:</p>
+                <p class="value" id="minPaymentInterest">$0.00</p>
+                <p class="label">Total Amount Paid:</p>
+                <p class="value" id="minPaymentTotal">$0.00</p>
 
 
-            <h3>With Total Monthly Payment ($<span id="displayTotalPayment">0.00</span>):</h3>
-            <p class="label">New Time to Payoff:</p>
-            <p class="value" id="extraPaymentTime">0 Years, 0 Months</p>
-            <p class="label">New Total Interest Paid:</p>
-            <p class="value" id="extraPaymentInterest">$0.00</p>
-            <p class="label">New Total Amount Paid:</p>
-            <p class="value" id="extraPaymentTotal">$0.00</p>
+                <h3>With Total Monthly Payment ($<span id="displayTotalPayment">0.00</span>):</h3>
+                <p class="label">New Time to Payoff:</p>
+                <p class="value" id="extraPaymentTime">0 Years, 0 Months</p>
+                <p class="label">New Total Interest Paid:</p>
+                <p class="value" id="extraPaymentInterest">$0.00</p>
+                <p class="label">New Total Amount Paid:</p>
+                <p class="value" id="extraPaymentTotal">$0.00</p>
 
-            <hr>
+                <hr>
 
-            <h3>Total Savings:</h3>
-            <p class="label">Interest Saved:</p>
-            <p class="value saved-highlight" id="interestSaved">$0.00</p>
-            <p class="label">Time Saved:</p>
-            <p class="value saved-highlight" id="timeSaved">0 Years, 0 Months</p>
+                <h3>Total Savings:</h3>
+                <p class="label">Interest Saved:</p>
+                <p class="value saved-highlight" id="interestSaved">$0.00</p>
+                <p class="label">Time Saved:</p>
+                <p class="value saved-highlight" id="timeSaved">0 Years, 0 Months</p>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Payoff Breakdown (Current Payment)</h3>
+                <canvas id="currentPaymentChart"></canvas>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Interest Savings Comparison</h3>
+                <canvas id="interestSavingsChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    
+
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
