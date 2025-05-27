@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simplified Income Tax Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         /* General Body Styles for sticky footer layout */
@@ -32,6 +33,21 @@
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
         }
+
+        /* NEW: Centering the title and paragraph */
+        .calculator-container h1 {
+            text-align: center;
+            color: #007bff; /* Keep original color if preferred */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .calculator-container p {
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before sections */
+            color: #555;
+        }
+
 
         .input-group {
             margin-bottom: 15px;
@@ -130,6 +146,16 @@
             margin-bottom: 20px; /* Add margin below disclaimer */
         }
 
+        /* NEW: Chart container styles */
+        .chart-container {
+            width: 100%;
+            max-width: 300px; /* Adjust max-width for pie chart */
+            height: 300px; /* Fixed height for the canvas to make it square */
+            margin: 20px auto 0 auto; /* Center the chart horizontally */
+            position: relative;
+        }
+
+
         .back-link {
             display: block;
             margin-top: 30px;
@@ -203,6 +229,10 @@
 
             <p class="label">After-Tax Income:</p>
             <p id="afterTaxIncome" class="value after-tax-income">$0.00</p>
+
+            <div class="chart-container">
+                <canvas id="taxDistributionChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
