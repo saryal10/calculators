@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const letters = '0123456789ABCDEF';
         let color = '#';
         for (let i = 0; i < 6; i++) {
-            color += letters.push(Math.floor(Math.random() * 16));
+            color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
     }
@@ -91,32 +91,30 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalAssets = 0;
         const assetDataForChart = [];
         document.querySelectorAll('.asset-item').forEach(item => {
-            const nameInput = item.querySelector('input.asset-value:previous-sibling');
+            // FIX: Correctly select the name input within the .input-group
+            const nameInput = item.querySelector('.input-group input[type="text"]');
             const valueInput = item.querySelector('.asset-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Asset';
 
-            if (!isNaN(value)) {
+            if (!isNaN(value) && value !== 0) { // Only add non-zero values to chart data
                 totalAssets += value;
-                if (value > 0) { // Only add non-zero values to chart data
-                    assetDataForChart.push({ label: name, value: value });
-                }
+                assetDataForChart.push({ label: name, value: value });
             }
         });
 
         let totalLiabilities = 0;
         const liabilityDataForChart = [];
         document.querySelectorAll('.liability-item').forEach(item => {
-            const nameInput = item.querySelector('input.liability-value:previous-sibling');
+            // FIX: Correctly select the name input within the .input-group
+            const nameInput = item.querySelector('.input-group input[type="text"]');
             const valueInput = item.querySelector('.liability-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Liability';
 
-            if (!isNaN(value)) {
+            if (!isNaN(value) && value !== 0) { // Only add non-zero values to chart data
                 totalLiabilities += value;
-                if (value > 0) { // Only add non-zero values to chart data
-                    liabilityDataForChart.push({ label: name, value: value });
-                }
+                liabilityDataForChart.push({ label: name, value: value });
             }
         });
 
@@ -136,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Update Charts
-        updateChart(assetChart, assetChartCanvas, assetDataForChart, 'Asset Breakdown');
-        updateChart(liabilityChart, liabilityChartCanvas, liabilityDataForChart, 'Liability Breakdown');
+        assetChart = updateChart(assetChart, assetChartCanvas, assetDataForChart, 'Asset Breakdown'); // Assign back
+        liabilityChart = updateChart(liabilityChart, liabilityChartCanvas, liabilityDataForChart, 'Liability Breakdown'); // Assign back
     }
 
     // Generic function to update a Chart.js instance
@@ -179,34 +177,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         } else {
-            // Clear canvas if no data
+            // If no data, clear canvas and set chartInstance to null
             const ctx = canvasElement.getContext('2d');
             ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            chartInstance = null; // Set to null to indicate no active chart
         }
-
-        // Assign the new chart instance back to the global variable
-        if (title === 'Asset Breakdown') {
-            assetChart = chartInstance;
-        } else if (title === 'Liability Breakdown') {
-            liabilityChart = chartInstance;
-        }
+        return chartInstance; // Return the new or null chart instance
     }
 
     // Attach event listeners to initial input fields for real-time updates
-    // This is crucial for the pre-existing inputs
     document.querySelectorAll('.asset-item input, .liability-item input')
         .forEach(input => {
             input.addEventListener('input', calculateNetWorth);
         });
 
     // Initial setup for default items (hiding the remove link for them)
-    document.querySelectorAll('#assetInputs .asset-item, #liabilityInputs .liability-item')
-        .forEach(item => {
-            const removeLink = item.querySelector('.remove-link');
-            if (removeLink) {
-                removeLink.style.display = 'none';
-            }
+    // We'll hide the remove links for the first few pre-defined items.
+    document.querySelectorAll('#assetInputs .asset-item .remove-link').forEach((link, index) => {
+        // Assuming the first 5 items are the initial ones provided in the HTML
+        if (index < 5) { 
+            link.style.display = 'none';
+        }
+        // Add event listener to pre-existing links as well, in case they become visible later
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            link.closest('.asset-item').remove();
+            calculateNetWorth();
         });
+    });
+
+    document.querySelectorAll('#liabilityInputs .liability-item .remove-link').forEach((link, index) => {
+        // Assuming the first 4 items are the initial ones provided in the HTML
+        if (index < 4) { 
+            link.style.display = 'none';
+        }
+        // Add event listener to pre-existing links as well, in case they become visible later
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            link.closest('.liability-item').remove();
+            calculateNetWorth();
+        });
+    });
+
 
     // Initial calculation on page load
     calculateNetWorth();
