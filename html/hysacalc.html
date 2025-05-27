@@ -88,7 +88,6 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            /* text-align: center; REMOVED this as flexbox handles alignment */
             display: flex; /* Make results section a flex container */
             flex-wrap: wrap; /* Allow items to wrap on smaller screens */
             justify-content: space-around; /* Distribute space */
@@ -121,30 +120,42 @@
         .chart-container {
             flex: 1; /* Allow chart to take available space */
             min-width: 280px; /* Minimum width for the chart */
-            max-width: 350px; /* Max width for the chart */
-            height: 300px; /* Fixed height for the chart container */
-            position: relative; /* Needed for Chart.js responsiveness */
+            max-width: 350px; /* Max width for the chart on larger screens */
+            /* REMOVED: height: 300px; -- This was the problem on mobile */
+            position: relative; /* Keep relative for correct positioning of children */
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 10px;
+            padding: 10px; /* Padding for the container border */
             background-color: #fcfcfc;
             box-sizing: border-box;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: column; /* Stack h3 and chart-wrapper vertically */
+            align-items: center; /* Center content horizontally */
         }
 
         .chart-container h3 {
             margin-top: 0;
             color: #333;
             font-size: 1.2em;
-            margin-bottom: 10px;
+            margin-bottom: 10px; /* Space below title */
         }
 
-        .chart-container canvas {
-            max-width: 100%;
-            /* REMOVED: height: 250px; This was causing the elongation */
-            /* Chart.js will now manage its internal height based on its container and aspect ratio settings */
+        /* NEW: Styles for the chart wrapper to maintain aspect ratio */
+        .chart-wrapper {
+            width: 100%; /* Take full available width within .chart-container */
+            position: relative; /* Required for absolute positioning of canvas */
+            padding-bottom: 100%; /* This creates a square space (height = width) */
+            height: 0; /* Crucial for the padding-bottom trick to work */
+            overflow: hidden; /* Hides any overflow in case of issues */
+        }
+
+        /* NEW: Styles for the canvas inside the wrapper */
+        .chart-wrapper canvas {
+            position: absolute; /* Position absolutely within the wrapper */
+            top: 0;
+            left: 0;
+            width: 100% !important; /* Force canvas to fill the wrapper */
+            height: 100% !important; /* Force canvas to fill the wrapper */
         }
 
 
@@ -176,6 +187,9 @@
 
         /* Responsive adjustments */
         @media (max-width: 600px) {
+            body {
+                padding: 10px; /* Reduce overall body padding on small screens */
+            }
             .calculator-container {
                 padding: 20px;
             }
@@ -192,11 +206,17 @@
                 flex-direction: column; /* Stack summary and chart vertically */
                 align-items: center;
             }
-            .results-summary, .chart-container {
+            .results-summary {
                 min-width: unset; /* Remove min-width for full flexibility */
                 width: 100%; /* Take full width on small screens */
-                max-width: unset; /* Remove max-width constraint */
             }
+            .chart-container {
+                min-width: unset;
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
+                height: auto; /* Allow height to be determined by content (chart-wrapper) */
+            }
+            /* .chart-wrapper already handles aspect ratio on mobile too */
         }
     </style>
 </head>
@@ -239,9 +259,10 @@
             </div>
             <div class="chart-container">
                 <h3>Investment Breakdown</h3>
-                <canvas id="hysaChart"></canvas>
+                <div class="chart-wrapper"> <canvas id="hysaChart"></canvas>
+                </div>
             </div>
-            </div>
+        </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
 
