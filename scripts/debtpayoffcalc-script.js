@@ -29,12 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const interestSavedSpan = document.getElementById('interestSaved');
     const timeSavedSpan = document.getElementById('timeSaved');
 
-    // --- Chart elements ---
-    const interestChartCanvas = document.getElementById('interestChart');
-    const payoffTimeChartCanvas = document.getElementById('payoffTimeChart');
-
-    let interestChart; // Variable to hold the Chart.js instance for interest comparison
-    let payoffTimeChart; // Variable to hold the Chart.js instance for payoff time comparison
+    // --- Chart element ---
+    const debtCostChartCanvas = document.getElementById('debtCostChart');
+    let debtCostChart; // Variable to hold the Chart.js instance for the pie chart
 
     // --- Core Calculation Function ---
     function calculateDebtPayoff() {
@@ -88,7 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { months: Infinity, totalInterest: Infinity };
             }
 
-            while (tempBalance > 0) {
+            // Cap the iterations to prevent extremely long loops for very small payments or high interest
+            const maxMonths = 1200; // 100 years. If not paid by then, effectively infinite.
+
+            while (tempBalance > 0 && months < maxMonths) {
                 const interestThisMonth = tempBalance * monthlyRate;
                 totalInterest += interestThisMonth;
 
@@ -101,27 +101,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 tempBalance -= principalPaid;
                 months++;
-
-                // If balance becomes negative (paid off), adjust last payment and interest
-                if (tempBalance <= 0) {
-                    // The actual principal paid in the last month is the remaining balance
-                    const actualPrincipalPaidLastMonth = balance - (totalInterest - interestThisMonth);
-                    const lastMonthInterest = tempBalance + monthlyPayment - actualPrincipalPaidLastMonth;
-                    totalInterest = totalInterest - interestThisMonth + lastMonthInterest;
-                    
-                    // Recalculate based on the exact amount paid in the last month
-                    // This often requires a more precise iterative calculation or a formula for number of payments
-                    // For simplicity and common use cases, we'll keep the current approximation,
-                    // or for very high precision, one might need a different algorithm.
-                    // For most cases, the current interest calculation is "good enough" for simulation.
-                    break; // Debt is paid off
-                }
-
-                // Prevent extremely long loops for very small payments or high interest (e.g., 100 years max)
-                if (months > 12000) { // 12000 months = 1000 years. If it's not paid by then, it's effectively never.
-                    return { months: Infinity, totalInterest: Infinity };
-                }
             }
+            
+            // If the loop finished because months hit maxMonths, debt is not paid off
+            if (tempBalance > 0) {
+                return { months: Infinity, totalInterest: Infinity };
+            }
+
+            // Adjust total interest if balance went negative in the last payment
+            if (tempBalance < 0) {
+                totalInterest += tempBalance; // Subtract the overpayment from interest
+            }
+
             return { months: months, totalInterest: totalInterest };
         }
 
@@ -185,65 +176,82 @@ document.addEventListener('DOMContentLoaded', function() {
             timeSavedSpan.textContent = `${Math.max(0, savedYears)} Years, ${Math.max(0, savedMonths)} Months`; // Ensure non-negative display
         }
 
-        // Update the charts with the new data
-        updateInterestChart(minPayoff.totalInterest, extraPayoff.totalInterest);
-        updatePayoffTimeChart(minPayoff.months, extraPayoff.months);
+        // Update the pie chart with data from the "Extra Payment" scenario
+        // Use currentBalance as principal and extraPayoff.totalInterest as interest
+        updateDebtCostChart(currentBalance, extraPayoff.totalInterest);
 
         console.log('Debt payoff calculation complete.'); // Debugging log
     }
 
-    // --- Chart Update Function for Interest Comparison (Bar Chart) ---
-    function updateInterestChart(minInterest, extraInterest) {
-        console.log('Updating Interest Chart with data:', { minInterest, extraInterest });
+    // --- Chart Update Function for Debt Cost Breakdown (Pie Chart) ---
+    function updateDebtCostChart(principal, interest) {
+        console.log('Updating Debt Cost Chart with data:', { principal, interest });
 
-        if (interestChart) {
-            interestChart.destroy(); // Destroy existing chart before creating a new one
+        if (debtCostChart) {
+            debtCostChart.destroy(); // Destroy existing chart before creating a new one
         }
 
         const dataValues = [
-            minInterest === Infinity ? 0 : minInterest, // Treat Infinity as 0 for chart display
-            extraInterest === Infinity ? 0 : extraInterest
-        ];
+            principal,
+            interest
+        ].map(val => Math.max(0, val)); // Ensure no negative values go into the chart
 
         const labels = [
-            'Min. Payment',
-            'Extra Payment'
+            'Total Principal Paid',
+            'Total Interest Paid'
         ];
         const backgroundColors = [
-            '#dc3545', // Red for higher interest
-            '#28a745'  // Green for lower interest
+            '#6f42c1', // A distinct color for Principal
+            '#fd7e14'  // A distinct color for Interest
         ];
 
-        // Determine max value for Y-axis, handle cases where inputs are 0 or NaN
-        const maxValue = Math.max(...dataValues, 100); // Ensure min height for chart if all zero
+        // Filter out zero values for a cleaner chart, unless all values are zero
+        const filteredData = [];
+        const filteredLabels = [];
+        const filteredColors = [];
+        let allZero = true;
 
-        interestChart = new Chart(interestChartCanvas, {
-            type: 'bar',
+        for (let i = 0; i < dataValues.length; i++) {
+            if (dataValues[i] > 0) {
+                filteredData.push(dataValues[i]);
+                filteredLabels.push(labels[i]);
+                filteredColors.push(backgroundColors[i]);
+                allZero = false;
+            }
+        }
+
+        if (allZero) {
+            // If all values are zero, show a single "No Data" slice
+            filteredData.push(1); // Small dummy value to display a slice
+            filteredLabels.push('No Debt Cost');
+            filteredColors.push('#CCCCCC');
+        }
+
+
+        debtCostChart = new Chart(debtCostChartCanvas, {
+            type: 'pie',
             data: {
-                labels: labels,
+                labels: filteredLabels,
                 datasets: [{
-                    label: 'Total Interest Paid',
-                    data: dataValues,
-                    backgroundColor: backgroundColors,
-                    borderColor: backgroundColors.map(color => color.replace('0.7', '1')), // Darker border
-                    borderWidth: 1
+                    data: filteredData,
+                    backgroundColor: filteredColors,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: 'y', // Makes it a horizontal bar chart
                 plugins: {
                     legend: {
-                        display: false // No need for legend as labels are clear
+                        position: 'bottom', // Place legend below the chart
                     },
                     title: {
-                        display: false,
+                        display: false, // Title handled by HTML h3
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                let label = context.dataset.label || '';
+                                let label = context.label || '';
                                 if (label) {
                                     label += ': ';
                                 }
@@ -252,124 +260,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Interest Amount ($)'
-                        },
-                        ticks: {
-                            callback: function(value, index, values) {
-                                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
                 }
             }
         });
-        console.log('Interest Chart created/updated.');
+        console.log('Debt Cost Pie Chart created/updated.');
     }
-
-    // --- Chart Update Function for Payoff Time Comparison (Bar Chart) ---
-    function updatePayoffTimeChart(minMonths, extraMonths) {
-        console.log('Updating Payoff Time Chart with data:', { minMonths, extraMonths });
-
-        if (payoffTimeChart) {
-            payoffTimeChart.destroy(); // Destroy existing chart before creating a new one
-        }
-
-        const dataValues = [
-            minMonths === Infinity ? 0 : minMonths, // Treat Infinity as 0 for chart display
-            extraMonths === Infinity ? 0 : extraMonths
-        ];
-
-        const labels = [
-            'Min. Payment',
-            'Extra Payment'
-        ];
-        const backgroundColors = [
-            '#007bff', // Blue for longer time
-            '#ffc107'  // Orange for shorter time
-        ];
-
-        // Determine max value for Y-axis, handle cases where inputs are 0 or NaN
-        const maxValue = Math.max(...dataValues, 12); // Ensure min height for chart if all zero (e.g., 1 year)
-
-        payoffTimeChart = new Chart(payoffTimeChartCanvas, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Time to Payoff (Months)',
-                    data: dataValues,
-                    backgroundColor: backgroundColors,
-                    borderColor: backgroundColors.map(color => color.replace('0.7', '1')), // Darker border
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y', // Makes it a horizontal bar chart
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: false,
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                const totalMonths = context.raw;
-                                const years = Math.floor(totalMonths / 12);
-                                const months = totalMonths % 12;
-                                return `${label}${years} Years, ${months} Months`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Time to Payoff (Months)'
-                        },
-                        ticks: {
-                            callback: function(value, index, values) {
-                                // Display in years and months for readability
-                                const years = Math.floor(value / 12);
-                                const months = value % 12;
-                                if (years > 0 && months > 0) {
-                                    return `${years}y ${months}m`;
-                                } else if (years > 0) {
-                                    return `${years}y`;
-                                } else if (months > 0) {
-                                    return `${months}m`;
-                                }
-                                return '0m';
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        console.log('Payoff Time Chart created/updated.');
-    }
-
 
     // --- Helper function to reset results on invalid input ---
     function resetResults() {
@@ -380,8 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         extraPaymentInterestSpan.textContent = '$0.00';
         interestSavedSpan.textContent = '$0.00';
         timeSavedSpan.textContent = '0 Years, 0 Months';
-        updateInterestChart(0, 0); // Clear interest chart
-        updatePayoffTimeChart(0, 0); // Clear payoff time chart
+        updateDebtCostChart(0, 0); // Clear chart
     }
 
     // --- Event Listeners for Live Update and Button ---
