@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inflation Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/style.css"> 
     <style>
         /* General Body Styles for sticky footer layout */
@@ -31,6 +32,21 @@
             margin-bottom: 20px; /* Add margin below calculator before footer */
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
+        }
+
+        /* NEW: Centering the title */
+        .calculator-container h1 {
+            text-align: center;
+            color: #007bff; /* Keep original color if preferred */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        /* Centering the paragraph below the title */
+        .calculator-container p {
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before sections */
+            color: #555;
         }
 
         .input-group {
@@ -119,6 +135,15 @@
             font-weight: bold;
         }
 
+        /* NEW: Chart container styles */
+        .chart-container {
+            width: 100%;
+            max-width: 400px; /* Limit chart width if needed */
+            margin: 20px auto 0 auto; /* Center the chart horizontally */
+            height: 250px; /* Set a fixed height for the canvas */
+            position: relative;
+        }
+
         .back-link {
             display: block;
             margin-top: 30px;
@@ -189,6 +214,10 @@
 
             <p class="label">Purchasing Power of Today's Amount (in future dollars):</p>
             <p id="purchasingPower" class="value highlight-power">$0.00</p>
+
+            <div class="chart-container">
+                <canvas id="inflationBarChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
