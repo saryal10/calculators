@@ -42,15 +42,13 @@
             padding-bottom: 5px;
         }
 
-        /* --- KEY FIXES HERE --- */
+        /* --- New Flex Structure for each item --- */
         .income-item, .expense-item {
             display: flex;
-            align-items: center; /* Aligns items vertically in the middle */
-            gap: 10px; /* Space between elements */
-            margin-bottom: 15px;
-            flex-wrap: nowrap; /* Prevent wrapping on one line if possible */
-            /* Add min-width to the container to ensure it doesn't collapse too much */
-            min-width: 300px; /* Adjust based on expected smallest screen size before stacking */
+            align-items: flex-start; /* Align label to the top of the input group */
+            gap: 10px;
+            margin-bottom: 20px; /* Increased margin for stacked remove button */
+            flex-wrap: nowrap;
         }
 
         .income-item label, .expense-item label {
@@ -59,29 +57,39 @@
             font-size: 0.95em;
             color: #555;
             padding-right: 10px;
-            flex-shrink: 0; /* Prevents label from shrinking */
-            /* Align label text to baseline for better vertical alignment with inputs */
-            align-self: baseline;
-            padding-top: 8px; /* Match input padding to help vertical alignment */
+            flex-shrink: 0;
+            padding-top: 8px; /* Align label with the top of the input fields */
+        }
+
+        /* This new container will hold inputs and the remove button */
+        .input-group-vertical {
+            display: flex;
+            flex-direction: column; /* Stack inputs and remove button vertically */
+            flex-grow: 1; /* Allow this group to take remaining space */
+            gap: 5px; /* Space between input row and remove button */
+        }
+
+        /* This container holds the two input fields horizontally */
+        .input-row {
+            display: flex;
+            gap: 10px; /* Space between text and number inputs */
+            width: 100%; /* Ensure it takes full width of its parent (.input-group-vertical) */
         }
 
         .income-item input[type="text"],
         .expense-item input[type="text"] {
-            flex: 1 1 120px; /* flex-grow: 1, flex-shrink: 1, flex-basis: 120px */
-            /* This means it will grow, shrink, and prefers a width of 120px. */
+            flex: 1; /* Allow text input to take available horizontal space */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             box-sizing: border-box;
-            /* Removed explicit min-width and max-width as flex-basis handles preference */
-            /* You can re-add min/max if you need stricter control, e.g., min-width: 80px; */
+            min-width: 80px; /* Ensure it doesn't get too small */
         }
 
         .income-item input[type="number"],
         .expense-item input[type="number"] {
-            flex: 0 0 80px; /* flex-grow: 0, flex-shrink: 0, flex-basis: 80px */
-            /* This means it will NOT grow or shrink, and maintains a fixed width of 80px. */
+            flex: 0 0 90px; /* Fixed width for number input */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -91,28 +99,22 @@
         }
 
         .remove-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px 10px; /* Decreased padding */
+            background: none; /* No background */
+            border: none; /* No border */
+            color: #dc3545; /* Red text color */
+            text-decoration: underline; /* Underline like a link */
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 0.75em; /* Decreased font size */
-            white-space: nowrap;
-            flex-shrink: 0; /* Prevents button from shrinking */
-            flex-grow: 0; /* Prevents button from growing */
-            width: 70px; /* Fixed width for the button itself */
-            height: 36px; /* A bit taller to account for padding/font-size and align with inputs */
-            display: flex;
-            align-items: center; /* Vertically center text */
-            justify-content: center; /* Horizontally center text */
-            box-sizing: border-box; /* Include padding/border in width/height */
+            font-size: 0.8em; /* Small font size */
+            padding: 0; /* No padding */
+            text-align: right; /* Align text to the right */
+            width: 100%; /* Take full width of its parent to align right */
+            box-sizing: border-box;
+            transition: color 0.3s ease;
         }
         .remove-btn:hover {
-            background-color: #c82333;
+            color: #c82333; /* Darker red on hover */
+            text-decoration: none; /* Remove underline on hover */
         }
-        /* --- END KEY FIXES --- */
 
 
         .add-item-btn {
@@ -215,35 +217,29 @@
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .results {
-                flex-direction: column;
-                align-items: center;
-            }
-            .summary-details, .chart-container {
-                min-width: unset;
-                width: 100%;
-            }
             .income-item, .expense-item {
-                flex-direction: column; /* Stack label, inputs, button vertically */
+                flex-direction: column; /* Stack label and input group vertically */
                 align-items: flex-start;
                 gap: 5px;
             }
             .income-item label, .expense-item label {
                 text-align: left;
                 padding-right: 0;
-                width: auto; /* Allow label to take natural width */
-                padding-top: 0; /* Remove padding when stacked vertically */
+                width: auto;
+                padding-top: 0;
             }
-            .income-item input, .expense-item input {
-                width: 100%;
-                box-sizing: border-box;
-                /* Remove flex properties when stacked vertically */
-                flex: none;
+            .input-row {
+                flex-direction: column; /* Stack text and number inputs vertically */
+                gap: 5px;
+            }
+            .input-row input {
+                width: 100%; /* Inputs take full width when stacked */
+                flex: none; /* Remove flex properties */
             }
             .remove-btn {
-                width: 100%; /* Make button full width when stacked */
-                height: auto; /* Allow height to adjust */
-                flex: none; /* Remove flex properties when stacked vertically */
+                width: 100%; /* Button takes full width when stacked */
+                text-align: center; /* Center the "Remove" text */
+                padding: 5px 0; /* Some padding for stacked button */
             }
         }
     </style>
@@ -257,10 +253,14 @@
         <div id="incomeInputs">
             <div class="income-item">
                 <label>Main Income:</label>
-                <input type="text" value="Salary">
-                <input type="number" class="income-value" value="3500">
-                <button class="remove-btn initial-item"></button>
-            </div>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Salary">
+                        <input type="number" class="income-value" value="3500">
+                    </div>
+                    <button class="remove-btn initial-item"></button>
+                </div>
+                </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
 
@@ -268,45 +268,73 @@
         <div id="expenseInputs">
             <div class="expense-item">
                 <label>Housing (Rent/Mortgage):</label>
-                <input type="text" value="Rent/Mortgage">
-                <input type="number" class="expense-value" value="1200">
-                <button class="remove-btn initial-item"></button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Rent/Mortgage">
+                        <input type="number" class="expense-value" value="1200">
+                    </div>
+                    <button class="remove-btn initial-item"></button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Utilities:</label>
-                <input type="text" value="Utilities">
-                <input type="number" class="expense-value" value="200">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Utilities">
+                        <input type="number" class="expense-value" value="200">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Food:</label>
-                <input type="text" value="Groceries & Dining">
-                <input type="number" class="expense-value" value="400">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Groceries & Dining">
+                        <input type="number" class="expense-value" value="400">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Transportation:</label>
-                <input type="text" value="Car Payment/Gas/Transit">
-                <input type="number" class="expense-value" value="300">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Car Payment/Gas/Transit">
+                        <input type="number" class="expense-value" value="300">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Debt Payments:</label>
-                <input type="text" value="Credit Cards/Loans">
-                <input type="number" class="expense-value" value="250">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Credit Cards/Loans">
+                        <input type="number" class="expense-value" value="250">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Entertainment:</label>
-                <input type="text" value="Hobbies/Outings">
-                <input type="number" class="expense-value" value="150">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Hobbies/Outings">
+                        <input type="number" class="expense-value" value="150">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
             <div class="expense-item">
                 <label>Savings/Investments:</label>
-                <input type="text" value="Savings/Investments">
-                <input type="number" class="expense-value" value="200">
-                <button class="remove-btn">Remove</button>
+                <div class="input-group-vertical">
+                    <div class="input-row">
+                        <input type="text" value="Savings/Investments">
+                        <input type="number" class="expense-value" value="200">
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
             </div>
         </div>
         <button id="addExpenseBtn" class="add-item-btn">Add Another Expense</button>
