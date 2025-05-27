@@ -14,12 +14,12 @@
             padding: 20px;
             background-color: #f4f7f6;
             color: #333;
-            display: flex; /* Changed to flex for overall page layout */
-            flex-direction: column; /* Stack content vertically */
-            justify-content: space-between; /* Push footer to bottom */
-            align-items: center; /* Center content horizontally */
-            min-height: 100vh; /* Make sure body takes full viewport height */
-            box-sizing: border-box; /* Include padding in height calculation */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .calculator-container {
@@ -28,9 +28,9 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px; /* Add margin below calculator before footer */
-            width: 100%; /* Allow container to take up max-width */
-            box-sizing: border-box; /* Include padding in width */
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .section-title {
@@ -47,10 +47,11 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: nowrap; /* Prevent items from wrapping on one line too early */
         }
 
         .income-item label, .expense-item label {
-            /* Changed from flex: 2 to a fixed width for consistent alignment */
+            /* flex: 2; /* Removed this and used fixed width */
             width: 150px; /* Adjust as needed */
             text-align: right;
             font-size: 0.95em;
@@ -66,8 +67,8 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
-            box-sizing: border-box; /* Ensures padding is included in width */
-            min-width: 0; /* Allows shrinking in flex container */
+            box-sizing: border-box;
+            min-width: 80px; /* Give a reasonable minimum width */
         }
 
         .income-item input[type="number"],
@@ -78,8 +79,8 @@
             border-radius: 4px;
             font-size: 0.9em;
             text-align: right;
-            box-sizing: border-box; /* Ensures padding is included in width */
-            min-width: 0; /* Allows shrinking in flex container */
+            box-sizing: border-box;
+            min-width: 60px; /* Give a reasonable minimum width */
         }
 
         .remove-btn {
@@ -93,6 +94,7 @@
             font-size: 0.8em;
             white-space: nowrap;
             flex-shrink: 0; /* Prevent button from shrinking */
+            /* Removed visibility: hidden here - it will be set by JS dynamically */
         }
         .remove-btn:hover {
             background-color: #c82333;
@@ -185,13 +187,13 @@
 
         /* Footer specific styles */
         .footer-copyright {
-            width: 100%; /* Take full width */
+            width: 100%;
             text-align: center;
             padding: 20px 0;
-            margin-top: auto; /* Pushes the footer to the bottom */
+            margin-top: auto;
             font-size: 0.85em;
             color: #777;
-            background-color: #e9ecef; /* Slightly different background for visual separation */
+            background-color: #e9ecef;
             border-top: 1px solid #ddd;
             box-sizing: border-box;
         }
@@ -207,7 +209,7 @@
                 width: 100%;
             }
             .income-item, .expense-item {
-                flex-direction: column;
+                flex-direction: column; /* Stack label, inputs, button vertically */
                 align-items: flex-start;
                 gap: 5px;
             }
@@ -237,7 +239,7 @@
                 <label>Main Income:</label>
                 <input type="text" value="Salary">
                 <input type="number" class="income-value" value="3500">
-                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+                <button class="remove-btn initial-item" style="visibility: hidden;">Remove</button>
             </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
@@ -248,7 +250,7 @@
                 <label>Housing (Rent/Mortgage):</label>
                 <input type="text" value="Rent/Mortgage">
                 <input type="number" class="expense-value" value="1200">
-                <button class="remove-btn" style="visibility: hidden;">Remove</button>
+                <button class="remove-btn initial-item" style="visibility: hidden;">Remove</button>
             </div>
             <div class="expense-item">
                 <label>Utilities:</label>
