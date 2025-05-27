@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
         nameInput.type = 'text';
         nameInput.value = labelText; // Pre-fill with labelText
         nameInput.placeholder = `e.g., ${labelText}`;
-        // Add input event listener for real-time updates
         nameInput.addEventListener('input', calculateNetWorth);
 
         const valueInput = document.createElement('input');
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
         valueInput.value = value;
         valueInput.placeholder = 'Amount ($)';
         valueInput.step = '0.01'; // Allow cents
-        // Add input event listener for real-time updates
         valueInput.addEventListener('input', calculateNetWorth);
 
         inputGroup.appendChild(nameInput);
@@ -67,10 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 calculateNetWorth(); // Recalculate after removing
             });
         }
-
+        
         itemDiv.appendChild(label);
         itemDiv.appendChild(inputGroup);
-        itemDiv.appendChild(removeLink);
+        // CRITICAL FIX: Append the removeLink *after* the inputGroup, but still within itemDiv.
+        // The CSS for .asset-item and .liability-item being `flex-direction: column`
+        // will naturally stack them.
+        itemDiv.appendChild(removeLink); 
 
         return itemDiv;
     }
@@ -91,13 +92,12 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalAssets = 0;
         const assetDataForChart = [];
         document.querySelectorAll('.asset-item').forEach(item => {
-            // FIX: Correctly select the name input within the .input-group
             const nameInput = item.querySelector('.input-group input[type="text"]');
             const valueInput = item.querySelector('.asset-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Asset';
 
-            if (!isNaN(value) && value !== 0) { // Only add non-zero values to chart data
+            if (!isNaN(value) && value !== 0) {
                 totalAssets += value;
                 assetDataForChart.push({ label: name, value: value });
             }
@@ -106,13 +106,12 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalLiabilities = 0;
         const liabilityDataForChart = [];
         document.querySelectorAll('.liability-item').forEach(item => {
-            // FIX: Correctly select the name input within the .input-group
             const nameInput = item.querySelector('.input-group input[type="text"]');
             const valueInput = item.querySelector('.liability-value');
             const value = parseFloat(valueInput.value);
             const name = nameInput.value.trim() || 'Unnamed Liability';
 
-            if (!isNaN(value) && value !== 0) { // Only add non-zero values to chart data
+            if (!isNaN(value) && value !== 0) {
                 totalLiabilities += value;
                 liabilityDataForChart.push({ label: name, value: value });
             }
@@ -134,8 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Update Charts
-        assetChart = updateChart(assetChart, assetChartCanvas, assetDataForChart, 'Asset Breakdown'); // Assign back
-        liabilityChart = updateChart(liabilityChart, liabilityChartCanvas, liabilityDataForChart, 'Liability Breakdown'); // Assign back
+        assetChart = updateChart(assetChart, assetChartCanvas, assetDataForChart, 'Asset Breakdown');
+        liabilityChart = updateChart(liabilityChart, liabilityChartCanvas, liabilityDataForChart, 'Liability Breakdown');
     }
 
     // Generic function to update a Chart.js instance
@@ -145,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const backgroundColors = data.map(() => getRandomColor());
 
         if (chartInstance) {
-            chartInstance.destroy(); // Destroy previous chart instance
+            chartInstance.destroy();
         }
 
         if (data.length > 0) {
@@ -177,12 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         } else {
-            // If no data, clear canvas and set chartInstance to null
             const ctx = canvasElement.getContext('2d');
             ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            chartInstance = null; // Set to null to indicate no active chart
+            chartInstance = null;
         }
-        return chartInstance; // Return the new or null chart instance
+        return chartInstance;
     }
 
     // Attach event listeners to initial input fields for real-time updates
@@ -195,10 +193,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // We'll hide the remove links for the first few pre-defined items.
     document.querySelectorAll('#assetInputs .asset-item .remove-link').forEach((link, index) => {
         // Assuming the first 5 items are the initial ones provided in the HTML
-        if (index < 5) { 
+        if (index < 5) {
             link.style.display = 'none';
         }
-        // Add event listener to pre-existing links as well, in case they become visible later
         link.addEventListener('click', function(e) {
             e.preventDefault();
             link.closest('.asset-item').remove();
@@ -208,17 +205,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('#liabilityInputs .liability-item .remove-link').forEach((link, index) => {
         // Assuming the first 4 items are the initial ones provided in the HTML
-        if (index < 4) { 
+        if (index < 4) {
             link.style.display = 'none';
         }
-        // Add event listener to pre-existing links as well, in case they become visible later
         link.addEventListener('click', function(e) {
             e.preventDefault();
             link.closest('.liability-item').remove();
             calculateNetWorth();
         });
     });
-
 
     // Initial calculation on page load
     calculateNetWorth();
