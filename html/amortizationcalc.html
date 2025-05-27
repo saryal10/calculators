@@ -160,7 +160,7 @@
             flex: 1;
             min-width: 320px; /* Minimum width for the chart */
             max-width: 450px; /* Max width for the chart */
-            height: 350px; /* Fixed height for the chart container */
+            height: 350px; /* Fixed height for the chart container - KEEP FOR LARGER SCREENS */
             position: relative;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -183,7 +183,7 @@
 
         .chart-container canvas {
             max-width: 100%;
-            height: 300px; /* Adjust canvas height to fit container */
+            height: 300px; /* Adjust canvas height to fit container - KEEP FOR LARGER SCREENS */
         }
 
         /* Amortization Table Styles */
@@ -289,8 +289,22 @@
             .summary-info, .chart-container {
                 min-width: unset;
                 width: 100%;
-                max-width: 400px; /* Constrain chart on smaller screens */
+                max-width: 400px; /* Constrain summary/chart on smaller screens */
             }
+
+            /* --- CRITICAL CHART ADJUSTMENTS FOR SMALL SCREENS --- */
+            .chart-container {
+                height: auto; /* Allow height to adjust */
+                min-height: 250px; /* Give it a reasonable minimum height */
+                max-height: 400px; /* Prevent it from getting too tall on very narrow but long screens */
+            }
+
+            .chart-container canvas {
+                height: auto; /* Let Chart.js determine height based on width and aspectRatio */
+                max-height: 300px; /* Cap its maximum height */
+            }
+            /* --- END CRITICAL CHART ADJUSTMENTS --- */
+
             .input-group {
                 flex-direction: column;
                 align-items: flex-start;
