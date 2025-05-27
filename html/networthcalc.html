@@ -24,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 800px; /* Increased max-width to accommodate charts */
+            max-width: 900px; /* Increased max-width again to better accommodate side-by-side layout with stacked charts */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -122,16 +122,17 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            display: flex; /* Use flexbox for summary and charts */
+            display: flex; /* Flex container for summary and charts-group */
             flex-wrap: wrap; /* Allow wrapping of children */
-            justify-content: space-around; /* Distribute space around items */
-            gap: 20px; /* Space between summary and charts */
+            justify-content: center; /* Center content when not enough space for side-by-side */
+            gap: 20px; /* Space between summary and charts-group */
         }
 
         .summary-details {
             flex: 1; /* Allows it to grow and shrink */
             min-width: 280px; /* Minimum width for summary block */
             text-align: center;
+            box-sizing: border-box; /* Ensure padding/border don't affect width */
         }
 
         .results h2 {
@@ -158,28 +159,42 @@
             color: #dc3545; /* Red for negative net worth */
         }
 
+        /* NEW: Container for stacking charts */
+        .charts-group {
+            display: flex;
+            flex-direction: column; /* Stack charts vertically */
+            gap: 20px; /* Space between charts */
+            flex: 1; /* Allow charts group to grow */
+            min-width: 320px; /* Minimum width for the charts column */
+        }
+
         /* Styles for chart containers */
         .chart-container {
-            width: 100%; /* Take full width on small screens */
-            max-width: 350px; /* Max width for individual charts */
+            width: 100%; /* Take full width of its parent (.charts-group) */
+            /* max-width: 350px; Removed, let it take full width of charts-group */
             height: 350px; /* Fixed height for charts */
             position: relative;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 10px;
+            padding: 15px; /* Increased padding to give title more space */
             background-color: #fcfcfc;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Center canvas within container */
+            justify-content: flex-start; /* Align content to the start (top) */
         }
         .chart-container h3 {
-            margin-top: 0;
+            margin-top: 0; /* Remove default margin from h3 */
             color: #333;
             font-size: 1.2em;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 10px; /* Space below title */
+            width: 100%; /* Ensure title takes full width */
+        }
+        .chart-container canvas {
+            max-height: calc(100% - 30px); /* Adjust canvas height to account for h3 and its margin */
+            width: 100%; /* Ensure canvas takes full available width */
         }
 
 
@@ -210,9 +225,25 @@
         }
 
         /* Responsive adjustments */
+        @media (min-width: 769px) { /* Apply only for larger screens for the main layout */
+            .results {
+                justify-content: space-between; /* Push summary and charts group to edges */
+            }
+            .summary-details {
+                flex: 1; /* Allows summary to take 1 part */
+                max-width: 45%; /* Limit summary width */
+                margin-right: 20px; /* Space between summary and charts-group */
+            }
+            .charts-group {
+                flex: 1; /* Allows charts group to take 1 part */
+                max-width: 50%; /* Limit charts group width */
+            }
+        }
+
         @media (max-width: 768px) {
             .calculator-container {
                 padding: 20px;
+                max-width: 100%; /* Ensure container fills small screens */
             }
             .asset-item, .liability-item {
                 flex-direction: column; /* Stack items vertically */
@@ -236,12 +267,16 @@
                 flex-direction: column; /* Stack summary and charts vertically */
                 align-items: center;
             }
-            .summary-details, .chart-container {
+            .summary-details, .charts-group { /* Target charts-group instead of individual chart-container for stacking */
                 min-width: unset; /* Remove min-width override for small screens */
                 width: 100%; /* Take full width */
             }
             .chart-container {
                 height: 300px; /* Adjust height for smaller screens if needed */
+                padding: 10px; /* Reduce padding on smaller screens */
+            }
+            .chart-container canvas {
+                max-height: calc(100% - 20px); /* Adjust canvas height for smaller screens */
             }
         }
     </style>
@@ -327,13 +362,15 @@
                 <p class="label">Your Net Worth:</p>
                 <p id="netWorth" class="value positive">$0.00</p>
             </div>
-            <div class="chart-container">
-                <h3>Asset Breakdown</h3>
-                <canvas id="assetChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Liability Breakdown</h3>
-                <canvas id="liabilityChart"></canvas>
+            <div class="charts-group">
+                <div class="chart-container">
+                    <h3>Asset Breakdown</h3>
+                    <canvas id="assetChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Liability Breakdown</h3>
+                    <canvas id="liabilityChart"></canvas>
+                </div>
             </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
