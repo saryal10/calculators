@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amortization Schedule Calculator</title>
     <link rel="stylesheet" href="../css/style.css">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -26,85 +24,180 @@
         }
 
         .calculator-container {
-            max-width: 900px; /* Wider to accommodate the table */
+            max-width: 960px; /* Wider to accommodate results and chart side-by-side */
             padding: 30px;
-            background-color: #ffffff; /* Add background for clarity */
+            background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px; /* Add margin below calculator before footer */
-            width: 100%; /* Allow container to take up max-width */
-            box-sizing: border-box; /* Include padding in width */
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex; /* Make it a flex container */
+            flex-direction: column; /* Stack children (h1, p, input-groups, etc.) vertically */
+            align-items: center; /* Center items horizontally within the container */
         }
 
-        .results {
-            /* Modified to use flexbox for side-by-side layout */
+        /* FIX: Center the h1 title */
+        .calculator-container h1 {
+            width: 100%; /* Ensure h1 takes full width of its parent */
+            text-align: center; /* Center the text within the h1 */
+            margin-top: 0;
+            margin-bottom: 10px; /* Adjust spacing */
+            color: #007bff;
+        }
+
+        /* Center the paragraph below the title */
+        .calculator-container p.description { /* Added class for specific styling */
+            width: 100%;
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before inputs */
+            color: #555;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
             display: flex;
-            justify-content: space-around; /* Distribute space between summary and chart */
-            align-items: flex-start; /* Align items to the top */
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            align-items: center; /* Align label and input horizontally */
+            gap: 10px;
+            width: 100%; /* Ensure input groups take full width */
+        }
+
+        .input-group label {
+            flex: 1; /* Label takes proportional space */
+            text-align: right;
+            padding-right: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .input-group input[type="number"] {
+            flex: 2; /* Input takes more space */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
             margin-bottom: 20px;
-            gap: 20px; /* Space between flex items */
-            padding: 20px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Main results section layout */
+        .results-section { /* Renamed from .results to avoid conflict with summary p.results */
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+            width: 100%; /* Ensure it takes full width */
         }
 
         .summary-info {
-            text-align: left;
-            min-width: 250px; /* Ensure space for summary text */
-            flex-shrink: 0; /* Prevent shrinking */
+            flex: 1;
+            min-width: 280px; /* Minimum width for summary */
+            max-width: 450px; /* Max width for summary */
+            text-align: center; /* Center contents within summary */
+            box-sizing: border-box;
         }
 
-        .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+        .results-section h2 {
+            margin-top: 0;
             color: #333;
+            font-size: 1.5em;
+            margin-bottom: 10px;
         }
 
-        .results p.label {
+        .summary-info p.label {
             font-size: 1.1em;
             color: #555;
             margin-bottom: 5px;
             font-weight: normal;
         }
-        .results p.value {
+        .summary-info p.value {
             font-size: 1.4em;
             color: #007bff;
             font-weight: bold;
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        .results .monthly-payment {
+        .summary-info .monthly-payment {
             color: #28a745; /* Green for monthly payment */
             font-size: 1.8em;
             font-weight: bold;
         }
 
         .chart-container {
-            /* Container for the canvas to control its size */
-            width: 100%;
-            max-width: 300px; /* Max width for the chart */
-            height: 300px; /* Max height for the chart to make it square */
-            position: relative; /* Needed for Chart.js responsiveness */
-            /* Add some visual border/shadow for the chart container */
+            flex: 1;
+            min-width: 320px; /* Minimum width for the chart */
+            max-width: 450px; /* Max width for the chart */
+            height: 350px; /* Fixed height for the chart container */
+            position: relative;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px;
             background-color: #fcfcfc;
-            box-sizing: border-box; /* Include padding in width/height */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 300px; /* Adjust canvas height to fit container */
+        }
 
         /* Amortization Table Styles */
-        #amortizationSchedule {
+        #amortizationScheduleContainer { /* New container for table and its title */
             margin-top: 30px;
-            overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
+            width: 100%;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 15px;
             background-color: #f8f8f8;
-            max-height: 500px; /* Limit height and add scroll */
+            box-sizing: border-box;
+        }
+
+        #amortizationScheduleContainer h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #amortizationTableWrapper { /* Wrapper for scrollable table */
+            overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
+            max-height: 400px; /* Limit height and add scroll */
             overflow-y: auto;
-            box-sizing: border-box; /* Include padding in width/height */
         }
 
         #amortizationTable {
@@ -146,49 +239,6 @@
             background-color: #e9ecef !important; /* Ensure it stands out */
         }
 
-        /* Input group styling */
-        .input-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .input-group label {
-            flex: 1;
-            text-align: right;
-            padding-right: 10px;
-            font-size: 0.95em;
-            color: #555;
-        }
-
-        .input-group input[type="number"] {
-            flex: 2;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        /* Calculate Button Styles (Restored) */
-        button {
-            display: block;
-            width: 100%;
-            padding: 12px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-bottom: 20px; /* Keep margin */
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
         .back-link {
             display: block;
             margin-top: 30px;
@@ -196,6 +246,7 @@
             color: #007bff;
             text-decoration: none;
             font-size: 0.95em;
+            width: 100%; /* Ensures it centers within the calculator-container */
         }
 
         .back-link:hover {
@@ -204,27 +255,30 @@
 
         /* Footer specific styles */
         .footer-copyright {
-            width: 100%; /* Take full width */
+            width: 100%;
             text-align: center;
             padding: 20px 0;
-            margin-top: auto; /* Pushes the footer to the bottom in a flex container */
+            margin-top: auto;
             font-size: 0.85em;
             color: #777;
-            background-color: #e9ecef; /* Slightly different background for visual separation */
+            background-color: #e9ecef;
             border-top: 1px solid #ddd;
             box-sizing: border-box;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .results {
-                flex-direction: column;
+            .calculator-container {
+                padding: 20px;
+            }
+            .results-section {
+                flex-direction: column; /* Stack summary and chart vertically */
                 align-items: center;
             }
             .summary-info, .chart-container {
                 min-width: unset;
                 width: 100%;
-                max-width: 300px; /* Constrain chart on smaller screens */
+                max-width: 400px; /* Constrain chart on smaller screens */
             }
             .input-group {
                 flex-direction: column;
@@ -237,13 +291,16 @@
             .input-group input {
                 width: 100%;
             }
+            #amortizationTable {
+                min-width: 500px; /* Allow horizontal scroll for table */
+            }
         }
     </style>
 </head>
 <body>
     <div class="calculator-container">
         <h1>Amortization Schedule Calculator</h1>
-        <p>Generate a detailed payment schedule for your loan, showing principal and interest breakdown for each payment.</p>
+        <p class="description">Generate a detailed payment schedule for your loan, showing principal and interest breakdown for each payment.</p>
 
         <div class="input-group">
             <label for="loanAmount">Loan Amount ($):</label>
@@ -260,20 +317,43 @@
 
         <button id="calculateBtn">Generate Schedule</button>
 
-        <div class="results">
+        <div class="results-section">
             <div class="summary-info">
                 <h2>Loan Summary:</h2>
                 <p class="label">Estimated Monthly Payment:</p>
                 <p id="monthlyPayment" class="value monthly-payment">$0.00</p>
+                <p class="label">Total Principal Paid:</p>
+                <p id="totalPrincipalPaid" class="value">$0.00</p>
+                <p class="label">Total Interest Paid:</p>
+                <p id="totalInterestPaid" class="value">$0.00</p>
+                <p class="label">Overall Loan Cost:</p>
+                <p id="overallLoanCost" class="value">$0.00</p>
             </div>
             <div class="chart-container">
+                <h3>Principal vs. Interest Over Time</h3>
                 <canvas id="amortizationChart"></canvas>
             </div>
         </div>
 
-        <div id="amortizationSchedule" style="display: none;">
+        <div id="amortizationScheduleContainer" style="display: none;">
             <h2>Amortization Schedule:</h2>
+            <div id="amortizationTableWrapper">
+                <table id="amortizationTable">
+                    <thead>
+                        <tr>
+                            <th>Payment #</th>
+                            <th>Beginning Balance</th>
+                            <th>Payment</th>
+                            <th>Principal</th>
+                            <th>Interest</th>
+                            <th>Ending Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
+        </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
 
