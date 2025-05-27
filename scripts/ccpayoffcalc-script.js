@@ -100,7 +100,20 @@ function calculateCreditCardPayoff() {
 
     // --- Input Validation and Edge Cases ---
     if (currentBalance < 0 || annualInterestRate < 0 || monthlyPayment < 0 || extraMonthlyPayment < 0) {
-        alert('Please enter non-negative values for all fields.');
+        // Using console.error instead of alert to avoid blocking UI
+        console.error('Please enter non-negative values for all fields.');
+        // Optionally, clear results if inputs are invalid
+        minPaymentTimeElem.textContent = 'Invalid Input';
+        minPaymentInterestElem.textContent = '$N/A';
+        minPaymentTotalElem.textContent = '$N/A';
+        extraPaymentTimeElem.textContent = 'Invalid Input';
+        extraPaymentInterestElem.textContent = '$N/A';
+        extraPaymentTotalElem.textContent = '$N/A';
+        interestSavedElem.textContent = '$N/A';
+        timeSavedElem.textContent = 'N/A';
+        displayMinPaymentElem.textContent = '0.00';
+        displayTotalPaymentElem.textContent = '0.00';
+        updateCharts(0, 0, 0); // Clear charts
         return;
     }
      if (currentBalance === 0) {
@@ -115,7 +128,7 @@ function calculateCreditCardPayoff() {
         timeSavedElem.textContent = '0 Years, 0 Months';
         displayMinPaymentElem.textContent = '0.00';
         displayTotalPaymentElem.textContent = '0.00';
-        updateCharts(0, 0, 0, 0, 0); // Clear charts
+        updateCharts(0, 0, 0); // Clear charts
         return;
     }
 
@@ -162,8 +175,9 @@ function calculateCreditCardPayoff() {
         timeSavedElem.textContent = '0 Years, 0 Months';
     } else if (minPayoff.months === Infinity) {
         // Current payment never pays off, but extra payment does - significant savings
-        savedInterest = 'Significant!'; // Or a large number like 9999999 for chart
-        savedMonths = 'Significant!'; // Or a large number for chart
+        // For chart purposes, use a large number if 'Significant!' is not numeric
+        savedInterest = currentBalance * annualInterestRate / 100 * 10; // Placeholder large value
+        savedMonths = 1200; // Max months
         interestSavedElem.textContent = 'Significant!';
         timeSavedElem.textContent = 'Significant!';
     } else {
