@@ -1,177 +1,281 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Input elements
-    const currentBalanceInput = document.getElementById('currentBalance');
-    const annualInterestRateInput = document.getElementById('annualInterestRate');
-    const monthlyPaymentInput = document.getElementById('monthlyPayment');
-    const extraMonthlyPaymentInput = document.getElementById('extraMonthlyPayment');
-    const calculateBtn = document.getElementById('calculateBtn');
+// scripts/ccpayoffcalc-script.js
 
-    // Output elements
-    const displayMinPaymentSpan = document.getElementById('displayMinPayment');
-    const displayTotalPaymentSpan = document.getElementById('displayTotalPayment');
-    const minPaymentTimeSpan = document.getElementById('minPaymentTime');
-    const minPaymentInterestSpan = document.getElementById('minPaymentInterest');
-    const minPaymentTotalSpan = document.getElementById('minPaymentTotal');
-    const extraPaymentTimeSpan = document.getElementById('extraPaymentTime');
-    const extraPaymentInterestSpan = document.getElementById('extraPaymentInterest');
-    const extraPaymentTotalSpan = document.getElementById('extraPaymentTotal');
-    const interestSavedSpan = document.getElementById('interestSaved');
-    const timeSavedSpan = document.getElementById('timeSaved');
+// --- DOM Elements ---
+const currentBalanceInput = document.getElementById('currentBalance');
+const annualInterestRateInput = document.getElementById('annualInterestRate');
+const monthlyPaymentInput = document.getElementById('monthlyPayment');
+const extraMonthlyPaymentInput = document.getElementById('extraMonthlyPayment');
+const calculateBtn = document.getElementById('calculateBtn');
 
-    calculateBtn.addEventListener('click', calculateCreditCardPayoff);
+const displayMinPaymentElem = document.getElementById('displayMinPayment');
+const minPaymentTimeElem = document.getElementById('minPaymentTime');
+const minPaymentInterestElem = document.getElementById('minPaymentInterest');
+const minPaymentTotalElem = document.getElementById('minPaymentTotal');
 
-    function calculateCreditCardPayoff() {
-        let currentBalance = parseFloat(currentBalanceInput.value);
-        const annualInterestRate = parseFloat(annualInterestRateInput.value);
-        const monthlyPayment = parseFloat(monthlyPaymentInput.value);
-        const extraMonthlyPayment = parseFloat(extraMonthlyPaymentInput.value);
+const displayTotalPaymentElem = document.getElementById('displayTotalPayment');
+const extraPaymentTimeElem = document.getElementById('extraPaymentTime');
+const extraPaymentInterestElem = document.getElementById('extraPaymentInterest');
+const extraPaymentTotalElem = document.getElementById('extraPaymentTotal');
 
-        // --- Input Validation ---
-        if (isNaN(currentBalance) || currentBalance <= 0) {
-            alert('Please enter a valid current credit card balance.');
-            return;
-        }
-        if (isNaN(annualInterestRate) || annualInterestRate < 0) {
-            alert('Please enter a valid annual interest rate.');
-            return;
-        }
-        if (isNaN(monthlyPayment) || monthlyPayment <= 0) {
-            alert('Please enter a valid monthly payment (must be greater than 0).');
-            return;
-        }
-        if (isNaN(extraMonthlyPayment) || extraMonthlyPayment < 0) {
-            alert('Please enter a valid extra monthly payment (can be 0).');
-            return;
-        }
+const interestSavedElem = document.getElementById('interestSaved');
+const timeSavedElem = document.getElementById('timeSaved');
 
-        const monthlyInterestRate = (annualInterestRate / 100) / 12;
+const currentPaymentChartCanvas = document.getElementById('currentPaymentChart');
+const interestSavingsChartCanvas = document.getElementById('interestSavingsChart');
 
-        // Ensure minimum payment covers at least the interest (plus a tiny bit of principal)
-        if (monthlyPayment <= (currentBalance * monthlyInterestRate) && currentBalance > 0 && annualInterestRate > 0) {
-            alert('Your monthly payment is too low. It must be greater than the monthly interest on the balance, or you will never pay off the debt.');
-            return;
-        }
-
-        // --- Core Calculation Function ---
-        function calculatePayoffDetails(balance, payment, monthlyRate) {
-            let months = 0;
-            let totalInterest = 0;
-            let tempBalance = balance;
-            let totalAmountPaid = 0;
-
-            if (payment <= 0) {
-                return { months: Infinity, totalInterest: Infinity, totalAmountPaid: Infinity };
-            }
-
-            // Cap calculation to prevent infinite loops for edge cases
-            const MAX_MONTHS = 1200; // 100 years
-
-            while (tempBalance > 0 && months < MAX_MONTHS) {
-                const interestThisMonth = tempBalance * monthlyRate;
-                totalInterest += interestThisMonth;
-
-                // Amount of principal paid this month
-                let principalPaid = payment - interestThisMonth;
-
-                // Adjust principalPaid if it's more than the remaining balance
-                if (principalPaid > tempBalance) {
-                    principalPaid = tempBalance;
-                }
-
-                tempBalance -= principalPaid;
-                totalAmountPaid += payment;
-                months++;
-
-                // If balance becomes negative (paid off in this month), adjust the last payment and total interest/amount
-                if (tempBalance <= 0) {
-                    // The last payment might have overpaid.
-                    const finalPrincipalPayment = principalPaid; // Amount of principal paid in the last month
-                    const lastActualPayment = finalPrincipalPayment + interestThisMonth; // What was actually needed this month
-                    totalAmountPaid -= (payment - lastActualPayment); // Subtract the overpayment from totalAmountPaid
-                    break; // Debt is paid off
-                }
-            }
-
-            // If loop exited because of max_months, debt is not paid off
-            if (tempBalance > 0) {
-                 return { months: Infinity, totalInterest: Infinity, totalAmountPaid: Infinity };
-            }
-
-            return { months: months, totalInterest: totalInterest, totalAmountPaid: totalAmountPaid };
-        }
-
-        // --- Calculate with Minimum Payment ---
-        const minPayoff = calculatePayoffDetails(currentBalance, monthlyPayment, monthlyInterestRate);
-        const minPayoffYears = Math.floor(minPayoff.months / 12);
-        const minPayoffMonths = minPayoff.months % 12;
-
-        // --- Calculate with Extra Payment ---
-        const totalMonthlyPaymentWithExtra = monthlyPayment + extraMonthlyPayment;
-        const extraPayoff = calculatePayoffDetails(currentBalance, totalMonthlyPaymentWithExtra, monthlyInterestRate);
-        const extraPayoffYears = Math.floor(extraPayoff.months / 12);
-        const extraPayoffMonths = extraPayoff.months % 12;
-
-        // --- Calculate Savings ---
-        let totalInterestSaved = 0;
-        let totalMonthsSaved = 0;
-
-        if (minPayoff.months !== Infinity && extraPayoff.months !== Infinity) {
-            totalInterestSaved = minPayoff.totalInterest - extraPayoff.totalInterest;
-            totalMonthsSaved = minPayoff.months - extraPayoff.months;
-        } else if (minPayoff.months === Infinity && extraPayoff.months !== Infinity) {
-             // If minimum never pays off, but extra does, then savings are huge
-             totalInterestSaved = Infinity; // Effectively all interest saved
-             totalMonthsSaved = Infinity; // Effectively all time saved
-        } else {
-             // Both are infinite or invalid, no savings
-             totalInterestSaved = 0;
-             totalMonthsSaved = 0;
-        }
+let currentPaymentChart; // Chart.js instance for current payment breakdown
+let interestSavingsChart; // Chart.js instance for interest savings comparison
 
 
-        const savedYears = Math.floor(totalMonthsSaved / 12);
-        const savedMonths = totalMonthsSaved % 12;
+// --- Debounce Function ---
+// Prevents a function from being called too frequently.
+function debounce(func, delay) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
 
-        // --- Display Results ---
-        displayMinPaymentSpan.textContent = monthlyPayment.toFixed(2);
-        displayTotalPaymentSpan.textContent = totalMonthlyPaymentWithExtra.toFixed(2);
+// --- Helper Function to Calculate Payoff ---
+// Returns an object with payoff details (time, total interest, total paid)
+function calculatePayoff(balance, annualRate, monthlyPaymentAmount) {
+    let remainingBalance = balance;
+    let totalInterestPaid = 0;
+    let months = 0;
+    const monthlyRate = (annualRate / 100) / 12;
 
-        if (minPayoff.months === Infinity) {
-            minPaymentTimeSpan.textContent = "Never (Payment too low)";
-            minPaymentInterestSpan.textContent = "N/A";
-            minPaymentTotalSpan.textContent = "N/A";
-        } else {
-            minPaymentTimeSpan.textContent = `${minPayoffYears} Years, ${minPayoffMonths} Months`;
-            minPaymentInterestSpan.textContent = `$${minPayoff.totalInterest.toFixed(2)}`;
-            minPaymentTotalSpan.textContent = `$${minPayoff.totalAmountPaid.toFixed(2)}`;
-        }
-
-
-        if (extraPayoff.months === Infinity) {
-            extraPaymentTimeSpan.textContent = "Never (Payment too low)";
-            extraPaymentInterestSpan.textContent = "N/A";
-            extraPaymentTotalSpan.textContent = "N/A";
-        } else {
-            extraPaymentTimeSpan.textContent = `${extraPayoffYears} Years, ${extraPayoffMonths} Months`;
-            extraPaymentInterestSpan.textContent = `$${extraPayoff.totalInterest.toFixed(2)}`;
-            extraPaymentTotalSpan.textContent = `$${extraPayoff.totalAmountPaid.toFixed(2)}`;
-        }
-
-
-        if (totalInterestSaved === Infinity) {
-            interestSavedSpan.textContent = "Significant!";
-        } else {
-            interestSavedSpan.textContent = `$${totalInterestSaved.toFixed(2)}`;
-        }
-
-        if (totalMonthsSaved === Infinity) {
-            timeSavedSpan.textContent = "Significant!";
-        } else {
-            timeSavedSpan.textContent = `${savedYears} Years, ${savedMonths} Months`;
-        }
-
+    // --- Input Validation specific to this helper ---
+    if (monthlyPaymentAmount <= 0) {
+        return { months: Infinity, totalInterest: Infinity, totalPaid: Infinity };
+    }
+    // Check if payment is less than monthly interest to prevent infinite loop
+    if (balance > 0 && monthlyPaymentAmount <= (balance * monthlyRate) && annualRate > 0) {
+         return { months: Infinity, totalInterest: Infinity, totalPaid: Infinity };
     }
 
-    // Initial calculation on page load
-    calculateCreditCardPayoff();
-});
+    const MAX_MONTHS = 1200; // Cap calculation at 100 years
+
+    while (remainingBalance > 0 && months < MAX_MONTHS) {
+        months++;
+        const interestForMonth = remainingBalance * monthlyRate;
+        totalInterestPaid += interestForMonth;
+        remainingBalance -= (monthlyPaymentAmount - interestForMonth);
+
+        // Adjust for last payment if it overshoots
+        if (remainingBalance < 0) {
+            // The actual interest paid in the last month will be slightly less than interestForMonth
+            // because the balance becomes 0 before the full payment applies interest to the full original amount.
+            // This adjustment ensures totalInterestPaid is accurate up to cents.
+            totalInterestPaid = totalInterestPaid + remainingBalance; // Subtract the "overshot" principal from totalInterest
+            remainingBalance = 0; // Set balance to 0 as it's paid off
+        }
+    }
+
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    const totalPaid = balance + totalInterestPaid; // Total paid is always principal + total interest
+
+    return {
+        months: months,
+        years: years,
+        remainingMonths: remainingMonths,
+        totalInterest: totalInterestPaid,
+        totalPaid: totalPaid
+    };
+}
+
+// --- Main Calculation and UI Update Function ---
+function calculateCreditCardPayoff() {
+    console.log('Calculating payoff...'); // Debugging log
+
+    const currentBalance = parseFloat(currentBalanceInput.value) || 0;
+    const annualInterestRate = parseFloat(annualInterestRateInput.value) || 0;
+    const monthlyPayment = parseFloat(monthlyPaymentInput.value) || 0;
+    const extraMonthlyPayment = parseFloat(extraMonthlyPaymentInput.value) || 0;
+
+    console.log(`Inputs: Balance=${currentBalance}, Rate=${annualInterestRate}, Monthly=${monthlyPayment}, Extra=${extraMonthlyPayment}`); // Debugging logs
+
+    // --- Input Validation and Edge Cases ---
+    if (currentBalance < 0 || annualInterestRate < 0 || monthlyPayment < 0 || extraMonthlyPayment < 0) {
+        alert('Please enter non-negative values for all fields.');
+        return;
+    }
+     if (currentBalance === 0) {
+        // If balance is 0, nothing to pay off
+        minPaymentTimeElem.textContent = '0 Years, 0 Months';
+        minPaymentInterestElem.textContent = '$0.00';
+        minPaymentTotalElem.textContent = '$0.00';
+        extraPaymentTimeElem.textContent = '0 Years, 0 Months';
+        extraPaymentInterestElem.textContent = '$0.00';
+        extraPaymentTotalElem.textContent = '$0.00';
+        interestSavedElem.textContent = '$0.00';
+        timeSavedElem.textContent = '0 Years, 0 Months';
+        displayMinPaymentElem.textContent = '0.00';
+        displayTotalPaymentElem.textContent = '0.00';
+        updateCharts(0, 0, 0, 0, 0); // Clear charts
+        return;
+    }
+
+
+    // Scenario 1: With current monthly payment
+    const minPayoff = calculatePayoff(currentBalance, annualInterestRate, monthlyPayment);
+
+    // Scenario 2: With extra monthly payment
+    const totalMonthlyPayment = monthlyPayment + extraMonthlyPayment;
+    const extraPayoff = calculatePayoff(currentBalance, annualInterestRate, totalMonthlyPayment);
+
+    // --- Update UI for Scenario 1 ---
+    displayMinPaymentElem.textContent = monthlyPayment.toFixed(2);
+    if (minPayoff.months === Infinity) {
+        minPaymentTimeElem.textContent = 'Never (Payment too low)';
+        minPaymentInterestElem.textContent = '$N/A';
+        minPaymentTotalElem.textContent = '$N/A';
+    } else {
+        minPaymentTimeElem.textContent = `${minPayoff.years} Years, ${minPayoff.remainingMonths} Months`;
+        minPaymentInterestElem.textContent = `$${minPayoff.totalInterest.toFixed(2)}`;
+        minPaymentTotalElem.textContent = `$${minPayoff.totalPaid.toFixed(2)}`;
+    }
+
+    // --- Update UI for Scenario 2 ---
+    displayTotalPaymentElem.textContent = totalMonthlyPayment.toFixed(2);
+    if (extraPayoff.months === Infinity) {
+        extraPaymentTimeElem.textContent = 'Never (Payment too low)';
+        extraPaymentInterestElem.textContent = '$N/A';
+        extraPaymentTotalElem.textContent = '$N/A';
+    } else {
+        extraPaymentTimeElem.textContent = `${extraPayoff.years} Years, ${extraPayoff.remainingMonths} Months`;
+        extraPaymentInterestElem.textContent = `$${extraPayoff.totalInterest.toFixed(2)}`;
+        extraPaymentTotalElem.textContent = `$${extraPayoff.totalPaid.toFixed(2)}`;
+    }
+
+    // --- Calculate Savings ---
+    let savedInterest = 0;
+    let savedMonths = 0;
+
+    if (minPayoff.months === Infinity && extraPayoff.months === Infinity) {
+        savedInterest = 0;
+        savedMonths = 0;
+        interestSavedElem.textContent = '$0.00';
+        timeSavedElem.textContent = '0 Years, 0 Months';
+    } else if (minPayoff.months === Infinity) {
+        // Current payment never pays off, but extra payment does - significant savings
+        savedInterest = 'Significant!'; // Or a large number like 9999999 for chart
+        savedMonths = 'Significant!'; // Or a large number for chart
+        interestSavedElem.textContent = 'Significant!';
+        timeSavedElem.textContent = 'Significant!';
+    } else {
+        savedInterest = minPayoff.totalInterest - extraPayoff.totalInterest;
+        savedMonths = minPayoff.months - extraPayoff.months;
+
+        interestSavedElem.textContent = `$${savedInterest.toFixed(2)}`;
+        const savedYears = Math.floor(savedMonths / 12);
+        const savedRemainingMonths = savedMonths % 12;
+        timeSavedElem.textContent = `${savedYears} Years, ${savedRemainingMonths} Months`;
+    }
+
+    // --- Update Charts ---
+    // Pass the actual numeric values to updateCharts
+    updateCharts(currentBalance, minPayoff.totalInterest, extraPayoff.totalInterest);
+    console.log('Chart update initiated.'); // Debugging log
+}
+
+
+// --- Chart Update Function ---
+function updateCharts(balance, minInterest, extraInterest) {
+    console.log('Updating chart with data:', { balance, minInterest, extraInterest }); // Debugging: Chart data received
+
+    // Chart 1: Principal vs. Interest (Current Payment)
+    if (currentPaymentChart) {
+        currentPaymentChart.destroy();
+    }
+    // Only create chart if there's valid data to display
+    if (balance > 0 || minInterest > 0) {
+        currentPaymentChart = new Chart(currentPaymentChartCanvas, {
+            type: 'pie',
+            data: {
+                labels: ['Principal Paid', 'Interest Paid'],
+                datasets: [{
+                    data: [balance, minInterest],
+                    backgroundColor: ['#007bff', '#dc3545'], // Blue for Principal, Red for Interest
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: false, // Title handled by HTML h3
+                    }
+                }
+            }
+        });
+        console.log('Current Payment Chart created.'); // Debugging log
+    } else {
+        // Clear canvas if no data
+        const ctx = currentPaymentChartCanvas.getContext('2d');
+        ctx.clearRect(0, 0, currentPaymentChartCanvas.width, currentPaymentChartCanvas.height);
+        console.log('No data for Current Payment Chart, canvas cleared.'); // Debugging log
+    }
+
+
+    // Chart 2: Interest Savings Comparison
+    if (interestSavingsChart) {
+        interestSavingsChart.destroy();
+    }
+    // Only create chart if there's valid data to display
+    const totalInterestSaved = minInterest - extraInterest;
+    if (minInterest > 0 && totalInterestSaved > 0) { // Ensure there's something to compare and savings exist
+         interestSavingsChart = new Chart(interestSavingsChartCanvas, {
+            type: 'pie',
+            data: {
+                labels: ['Interest Saved', 'Interest Paid (with Extra Payment)'],
+                datasets: [{
+                    data: [totalInterestSaved, extraInterest],
+                    backgroundColor: ['#28a745', '#ffc107'], // Green for Saved, Orange for Paid
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: false, // Title handled by HTML h3
+                    }
+                }
+            }
+        });
+        console.log('Interest Savings Chart created.'); // Debugging log
+    } else {
+        // Clear canvas if no data
+        const ctx = interestSavingsChartCanvas.getContext('2d');
+        ctx.clearRect(0, 0, interestSavingsChartCanvas.width, interestSavingsChartCanvas.height);
+        console.log('No data for Interest Savings Chart, canvas cleared.'); // Debugging log
+    }
+}
+
+
+// --- Event Listeners ---
+const debouncedCalculate = debounce(calculateCreditCardPayoff, 500); // Debounce for 500ms
+
+// Attach input listeners to all relevant input fields
+currentBalanceInput.addEventListener('input', debouncedCalculate);
+annualInterestRateInput.addEventListener('input', debouncedCalculate);
+monthlyPaymentInput.addEventListener('input', debouncedCalculate);
+extraMonthlyPaymentInput.addEventListener('input', debouncedCalculate);
+
+// Explicit calculate button click (immediate)
+calculateBtn.addEventListener('click', calculateCreditCardPayoff);
+
+// Initial calculation on page load
+document.addEventListener('DOMContentLoaded', calculateCreditCardPayoff);
