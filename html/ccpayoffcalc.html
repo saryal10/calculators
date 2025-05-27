@@ -24,38 +24,38 @@
         }
 
         .calculator-container {
-            max-width: 960px; /* Increased max-width to accommodate charts side-by-side */
+            max-width: 960px; /* Adjust max-width as needed */
             padding: 30px;
-            background-color: #ffffff; /* Added background for clarity */
+            background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px; /* Add margin below calculator before footer */
-            width: 100%; /* Allow container to take up max-width */
-            box-sizing: border-box; /* Include padding in width */
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .input-group {
             margin-bottom: 15px;
             display: flex;
-            flex-direction: column; /* Stack label, input, hint vertically */
-            align-items: flex-start; /* Align contents to the left */
-            gap: 5px; /* Space between elements in the group */
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
         }
 
         .input-group label {
             font-weight: 600;
             color: #333;
-            width: 100%; /* Full width for label */
+            width: 100%;
         }
 
-        .input-group inputtype="number"],
+        .input-group input[type="number"],
         .input-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
         }
 
         .input-group .hint {
@@ -88,22 +88,21 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            display: flex; /* Enable flexbox */
-            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-            justify-content: flex-start; /* Align items to the start of the line */
-            align-items: flex-start; /* Align items to the start of the container */
-            gap: 20px; /* Space between summary and charts */
+            display: flex; /* Main flex container for summary and charts column */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: center; /* Center content horizontally */
+            gap: 20px; /* Space between summary and charts column */
         }
 
         .results-summary {
             flex: 1; /* Allow summary to take available space */
             min-width: 300px; /* Minimum width for summary */
-            text-align: left; /* Align summary text left */
+            text-align: left;
             max-width: 400px; /* Limit summary width */
         }
-
+        
         .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+            margin-top: 0;
             color: #333;
         }
 
@@ -142,12 +141,21 @@
             width: 100%;
         }
 
+        /* New container for the charts column */
+        .charts-column {
+            display: flex;
+            flex-direction: column; /* Stack charts vertically */
+            gap: 20px; /* Space between the two charts */
+            flex-shrink: 0; /* Prevent charts column from shrinking too much */
+            min-width: 300px; /* Ensure charts column has a minimum width */
+            max-width: 350px; /* Limit the overall width of the charts column */
+            align-items: center; /* Center charts within their column */
+        }
+
         .chart-wrapper {
-            width: calc(50% - 10px); /* Take up roughly half the container width, with some margin */
-            min-width: 250px; /* Minimum width to prevent charts from becoming too small */
-            max-width: 350px; /* Max width for each chart */
+            width: 100%; /* Take full width of its parent (.charts-column) */
             height: 300px; /* Fixed height for the chart container */
-            position: relative; /* Needed for Chart.js responsiveness */
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -160,7 +168,7 @@
 
         .chart-wrapper canvas {
             max-width: 100%;
-            height: 250px; /* Adjusted height to fit within the smaller wrapper */
+            height: 250px; /* Adjusted height to fit within the wrapper */
         }
 
         .chart-wrapper h3 {
@@ -168,8 +176,8 @@
             margin-bottom: 15px;
             text-align: center;
             color: #333;
-            font-size: 1.1em; /* Slightly smaller font for chart titles */
-            border-bottom: none; /* Remove border for chart titles */
+            font-size: 1.1em;
+            border-bottom: none;
         }
 
         .back-link {
@@ -187,30 +195,30 @@
 
         /* Footer specific styles */
         .footer-copyright {
-            width: 100%; /* Take full width */
+            width: 100%;
             text-align: center;
             padding: 20px 0;
-            margin-top: auto; /* Pushes the footer to the bottom in a flex container */
+            margin-top: auto;
             font-size: 0.85em;
             color: #777;
-            background-color: #e9ecef; /* Slightly different background for visual separation */
+            background-color: #e9ecef;
             border-top: 1px solid #ddd;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
         }
 
         /* Responsive adjustments */
-        @media (max-width: 768px) { /* Adjust breakpoint for tablet-sized screens */
+        @media (max-width: 800px) { /* Adjust breakpoint for stacking summary and charts column */
             .results {
-                flex-direction: column; /* Stack summary and charts vertically on smaller screens */
-                align-items: center;
+                flex-direction: column; /* Stack summary and charts column vertically */
+                align-items: center; /* Center items when stacked */
             }
             .results-summary {
                 width: 100%;
-                max-width: none;
+                max-width: none; /* Remove max-width when stacked */
             }
-            .chart-wrapper {
-                width: 90%; /* Take up most of the width when stacked */
-                max-width: 400px; /* Limit max width when stacked */
+            .charts-column {
+                width: 100%;
+                max-width: 400px; /* Limit width when stacked */
             }
         }
     </style>
@@ -269,14 +277,16 @@
                 <p class="value saved-highlight" id="timeSaved">0 Years, 0 Months</p>
             </div>
 
-            <div class="chart-wrapper">
-                <h3>Payoff Breakdown (Current Payment)</h3>
-                <canvas id="currentPaymentChart"></canvas>
-            </div>
+            <div class="charts-column">
+                <div class="chart-wrapper">
+                    <h3>Payoff Breakdown (Current Payment)</h3>
+                    <canvas id="currentPaymentChart"></canvas>
+                </div>
 
-            <div class="chart-wrapper">
-                <h3>Payoff Breakdown (with Extra Payment)</h3>
-                <canvas id="extraPaymentChart"></canvas>
+                <div class="chart-wrapper">
+                    <h3>Payoff Breakdown (with Extra Payment)</h3>
+                    <canvas id="extraPaymentChart"></canvas>
+                </div>
             </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
