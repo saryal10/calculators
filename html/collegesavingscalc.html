@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Savings Calculator</title>
-    <link rel="stylesheet" href="../css/style.css"> 
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 480px;
+            max-width: 600px; /* Adjusted to accommodate chart */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -87,12 +88,22 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .results-summary {
+            flex: 1;
+            min-width: 280px;
+            text-align: left;
         }
 
         .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+            margin-top: 0;
             color: #333;
+            text-align: center; /* Center the title */
         }
 
         .results p.label {
@@ -117,6 +128,34 @@
             color: #dc3545; /* Red for negative outcome (gap) */
             font-size: 1.5em;
             font-weight: bold;
+        }
+
+        .chart-container {
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            height: 300px; /* Fixed height for the chart container */
+            position: relative; /* Needed for Chart.js responsiveness */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 250px; /* Adjust canvas height to fit container */
         }
 
         .back-link {
@@ -158,6 +197,16 @@
             .input-group input,
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
+            }
+            .results {
+                flex-direction: column; /* Stack summary and chart vertically */
+                align-items: center;
+                text-align: left; /* Align text within stacked items */
+            }
+            .results-summary, .chart-container {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
             }
         }
     </style>
@@ -203,30 +252,36 @@
         <button id="calculateBtn">Project College Plan</button>
 
         <div class="results">
-            <h2>Your College Projections:</h2>
-            <p class="label">Years Until College Starts:</p>
-            <p id="yearsUntilCollege" class="value">0</p>
+            <div class="results-summary">
+                <h2>Your College Projections:</h2>
+                <p class="label">Years Until College Starts:</p>
+                <p id="yearsUntilCollege" class="value">0</p>
 
-            <p class="label">Projected Total Cost of College:</p>
-            <p id="projectedTotalCollegeCost" class="value">$0.00</p>
+                <p class="label">Projected Total Cost of College:</p>
+                <p id="projectedTotalCollegeCost" class="value">$0.00</p>
 
-            <p class="label">Projected Savings at College Start:</p>
-            <p id="projectedSavingsAtStart" class="value">$0.00</p>
+                <p class="label">Projected Savings at College Start:</p>
+                <p id="projectedSavingsAtStart" class="value">$0.00</p>
 
-            <hr>
+                <hr>
 
-            <p class="label">Total Principal Saved:</p>
-            <p id="totalPrincipalSaved" class="value">$0.00</p>
+                <p class="label">Total Principal Saved:</p>
+                <p id="totalPrincipalSaved" class="value">$0.00</p>
 
-            <p class="label">Total Interest Earned:</p>
-            <p id="totalInterestEarned" class="value">$0.00</p>
+                <p class="label">Total Interest Earned:</p>
+                <p id="totalInterestEarned" class="value">$0.00</p>
 
-            <p class="label">Savings Gap / Surplus:</p>
-            <p id="savingsGapSurplus" class="value highlight-positive">$0.00</p>
+                <p class="label">Savings Gap / Surplus:</p>
+                <p id="savingsGapSurplus" class="value highlight-positive">$0.00</p>
+            </div>
+            <div class="chart-container">
+                <h3>Savings Breakdown</h3>
+                <canvas id="collegeSavingsChart"></canvas>
+            </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    
+
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
