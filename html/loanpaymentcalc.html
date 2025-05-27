@@ -151,7 +151,7 @@
             flex: 1; /* Allows chart to grow and shrink */
             min-width: 320px; /* Minimum width for the chart */
             max-width: 450px; /* Max width to ensure it doesn't get too big */
-            height: 350px; /* Fixed height for the chart container */
+            height: auto; /* IMPORTANT: Change from fixed height to auto */
             position: relative; /* Needed for Chart.js responsiveness */
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -175,7 +175,8 @@
 
         .chart-container canvas {
             max-width: 100%;
-            height: 300px; /* Adjust canvas height to fit container */
+            height: auto; /* IMPORTANT: Change from fixed height to auto */
+            /* Remove any fixed height or !important here if present */
         }
 
 
