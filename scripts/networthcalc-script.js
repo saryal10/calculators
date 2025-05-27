@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
         nameInput.type = 'text';
         nameInput.value = labelText; // Pre-fill with labelText
         nameInput.placeholder = `e.g., ${labelText}`;
+        // Add input event listener for real-time updates
+        nameInput.addEventListener('input', calculateNetWorth);
+
 
         const valueInput = document.createElement('input');
         valueInput.type = 'number';
@@ -43,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
         valueInput.value = value;
         valueInput.placeholder = 'Amount ($)';
         valueInput.step = '0.01'; // Allow cents
+        // Add input event listener for real-time updates
+        valueInput.addEventListener('input', calculateNetWorth);
+
 
         const removeBtn = document.createElement('button');
         removeBtn.classList.add('remove-btn');
@@ -63,22 +69,18 @@ document.addEventListener('DOMContentLoaded', function() {
         itemDiv.appendChild(valueInput);
         itemDiv.appendChild(removeBtn);
 
-        // Attach input listeners
-        nameInput.addEventListener('input', calculateNetWorth);
-        valueInput.addEventListener('input', calculateNetWorth);
-
         return itemDiv;
     }
 
     // Add Asset/Liability Row Functions
     addAssetBtn.addEventListener('click', function() {
         assetInputsContainer.appendChild(createInputRow('asset', 'New Asset', 0, true));
-        calculateNetWorth();
+        calculateNetWorth(); // Recalculate after adding
     });
 
     addLiabilityBtn.addEventListener('click', function() {
         liabilityInputsContainer.appendChild(createInputRow('liability', 'New Liability', 0, true));
-        calculateNetWorth();
+        calculateNetWorth(); // Recalculate after adding
     });
 
     // Function to calculate net worth and update charts
@@ -165,7 +167,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         title: {
                             display: true,
-                            text: title
+                            text: title,
+                            font: {
+                                size: 16
+                            }
                         }
                     }
                 }
@@ -184,14 +189,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Attach event listeners to initial input fields for real-time updates
+    // This is crucial for the pre-existing inputs
+    document.querySelectorAll('.asset-value, .liability-value, .asset-item input[type="text"], .liability-item input[type="text"]')
+        .forEach(input => {
+            input.addEventListener('input', calculateNetWorth);
+        });
+
     // Initial setup of remove button visibility and content for default items on page load
     document.querySelectorAll('.remove-btn[style*="visibility: hidden"]').forEach(button => {
         button.classList.add('initial-item');
         button.textContent = ''; // Ensure no text is visible
         button.style.visibility = ''; // Remove inline style to let CSS class handle it
     });
-    // Hide buttons with 'initial-item' class via CSS
-    document.styleSheets[0].insertRule('.remove-btn.initial-item { display: none; }', 0);
+    // This CSS rule should already be in your <style> block, but ensure it's there
+    // If you are injecting it via JS, it's fine, but better in CSS for static pages.
+    // document.styleSheets[0].insertRule('.remove-btn.initial-item { display: none; }', 0);
 
 
     // Initial calculation on page load
