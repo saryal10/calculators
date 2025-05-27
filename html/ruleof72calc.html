@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rule of 72 Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         /* General Body Styles for sticky footer layout */
@@ -32,6 +33,24 @@
             width: 100%; /* Allow container to take up max-width */
             box-sizing: border-box; /* Include padding in width */
         }
+
+        /* NEW: Centering the title and paragraphs */
+        .calculator-container h1 {
+            text-align: center;
+            color: #007bff; /* Keep original color if preferred */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .calculator-container p {
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before sections */
+            color: #555;
+        }
+        .calculator-container p.explanation {
+            margin-top: 0; /* Adjust if needed to fit with general p style */
+        }
+
 
         .input-group {
             margin-bottom: 20px; /* More space between input groups */
@@ -71,7 +90,7 @@
         .explanation {
             font-size: 0.9em;
             color: #666;
-            margin-top: -10px;
+            /* margin-top: -10px; // Handled by general p style */
             margin-bottom: 25px;
         }
 
@@ -96,6 +115,15 @@
         }
         .results .highlight-result {
             color: #007bff; /* Blue for results */
+        }
+
+        /* NEW: Chart container styles */
+        .chart-container {
+            width: 100%;
+            max-width: 350px; /* Adjust max-width for the chart */
+            height: 250px; /* Fixed height for the canvas */
+            margin: 20px auto 0 auto; /* Center the chart horizontally */
+            position: relative;
         }
 
         .back-link {
@@ -153,6 +181,13 @@
             <input type="number" id="yearsToDoubleInput" placeholder="e.g., 10" step="0.1" min="0.1">
             <p class="label">You will need an annual rate of return of approximately:</p>
             <p id="requiredRate" class="value highlight-result">---</p>
+        </div>
+
+        <div class="results">
+            <h2>Result Visualization:</h2>
+            <div class="chart-container">
+                <canvas id="rule72Chart"></canvas>
+            </div>
         </div>
 
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
