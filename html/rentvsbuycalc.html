@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rent vs. Buy Calculator</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -23,15 +24,28 @@
         }
 
         .calculator-container {
-            max-width: 600px; /* Wider container for more inputs */
+            max-width: 900px; /* Wider container to accommodate results and chart side-by-side */
             padding: 30px;
-            background-color: #ffffff; /* Added background for clarity */
+            background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px; /* Add margin below calculator before footer */
-            width: 100%; /* Allow container to take up max-width */
-            box-sizing: border-box; /* Include padding in width */
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex; /* Use flexbox for two-column layout: inputs and results */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 30px; /* Space between input sections and results */
+            justify-content: center; /* Center content when wrapped */
         }
+
+        /* NEW: Styles for input sections to take up one column */
+        .input-sections-wrapper {
+            flex: 1; /* Allow to grow */
+            min-width: 350px; /* Minimum width for input column */
+            max-width: 500px; /* Maximum width for input column */
+            box-sizing: border-box;
+        }
+
 
         .input-group {
             margin-bottom: 15px;
@@ -54,7 +68,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
         }
 
         .input-group .hint {
@@ -76,7 +90,7 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin-top: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 0px; /* Removed bottom margin as button is within input-sections-wrapper */
         }
 
         button:hover {
@@ -97,14 +111,32 @@
             font-size: 1.3em;
             margin-bottom: 15px;
         }
+
+        /* NEW: Results and Chart Container */
+        .results-and-chart {
+            flex: 1; /* Allows it to grow */
+            min-width: 350px; /* Minimum width for the results/chart column */
+            max-width: 500px; /* Maximum width for the results/chart column */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column; /* Stack results text and chart */
+            gap: 20px; /* Space between results text and chart */
+            align-items: center; /* Center horizontally within its flex item */
+        }
+
         .results {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            width: 100%; /* Take full width of its parent (.results-and-chart) */
+            padding-top: 0; /* Remove top padding as .results-and-chart handles spacing */
+            border-top: none; /* Remove border top as .results-and-chart handles visual separation */
+            text-align: center;
+            background-color: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .results h2 {
-            margin-top: 0; /* Remove default h2 margin */
+            margin-top: 0;
             color: #333;
         }
         .results p {
@@ -123,10 +155,40 @@
             font-weight: bold;
         }
         .results hr {
-            margin: 20px 0;
+            margin: 20px auto; /* Center hr */
             border: none;
             border-top: 1px solid #ddd;
+            width: 80%; /* Shorter HR */
         }
+
+        /* Chart Styles */
+        .chart-container {
+            width: 100%; /* Take full width of its parent (.results-and-chart) */
+            height: 350px; /* Fixed height for the chart */
+            position: relative;
+            background-color: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 15px; /* Padding inside the chart container */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Vertically center canvas if it's smaller */
+            align-items: center; /* Horizontally center canvas */
+        }
+        .chart-container h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.2em;
+            text-align: center;
+            width: 100%;
+        }
+        .chart-container canvas {
+            max-width: 100%; /* Ensure canvas doesn't overflow */
+            max-height: calc(100% - 30px); /* Account for h3 and its margin */
+        }
+
 
         .back-link {
             display: block;
@@ -135,6 +197,7 @@
             color: #007bff;
             text-decoration: none;
             font-size: 0.95em;
+            width: 100%; /* Take full width of parent container */
         }
 
         .back-link:hover {
@@ -151,13 +214,20 @@
             color: #777;
             background-color: #e9ecef; /* Slightly different background for visual separation */
             border-top: 1px solid #ddd;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box;
         }
 
         /* Responsive adjustments */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .calculator-container {
+                flex-direction: column; /* Stack columns vertically */
                 padding: 20px;
+                gap: 20px; /* Reduce gap on smaller screens */
+            }
+            .input-sections-wrapper,
+            .results-and-chart {
+                min-width: unset; /* Remove min-width override */
+                max-width: 100%; /* Take full width */
             }
             .input-group {
                 flex-direction: column; /* Stack inputs vertically */
@@ -168,83 +238,101 @@
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
             }
+            .chart-container {
+                height: 300px; /* Adjust height for smaller screens if needed */
+                padding: 10px;
+            }
+            .chart-container canvas {
+                max-height: calc(100% - 20px); /* Adjust canvas height for smaller screens */
+            }
         }
     </style>
 </head>
 <body>
     <div class="calculator-container">
-        <h1>Rent vs. Buy Calculator</h1>
+        <h1 style="width: 100%; text-align: center; margin-bottom: 20px;">Rent vs. Buy Calculator</h1>
 
-        <div class="input-group">
-            <label for="comparisonPeriod">Comparison Period (Years):</label>
-            <input type="number" id="comparisonPeriod" value="10" min="1" max="50">
+        <div class="input-sections-wrapper">
+            <div class="input-group">
+                <label for="comparisonPeriod">Comparison Period (Years):</label>
+                <input type="number" id="comparisonPeriod" value="10" min="1" max="50">
+            </div>
+
+            <div class="input-section">
+                <h2>Renting Details</h2>
+                <div class="input-group">
+                    <label for="currentMonthlyRent">Current Monthly Rent ($):</label>
+                    <input type="number" id="currentMonthlyRent" value="1500">
+                </div>
+                <div class="input-group">
+                    <label for="annualRentIncrease">Annual Rent Increase (%):</label>
+                    <input type="number" id="annualRentIncrease" value="3" step="0.1">
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h2>Buying Details</h2>
+                <div class="input-group">
+                    <label for="homePurchasePrice">Home Purchase Price ($):</label>
+                    <input type="number" id="homePurchasePrice" value="300000">
+                </div>
+                <div class="input-group">
+                    <label for="downPaymentAmount">Down Payment ($):</label>
+                    <input type="number" id="downPaymentAmount" value="30000">
+                </div>
+                <div class="input-group">
+                    <label for="annualInterestRate">Annual Mortgage Interest Rate (%):</label>
+                    <input type="number" id="annualInterestRate" value="4.5" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="loanTermYears">Mortgage Term (Years):</label>
+                    <input type="number" id="loanTermYears" value="30">
+                </div>
+                <div class="input-group">
+                    <label for="closingCosts">Closing Costs ($):</label>
+                    <input type="number" id="closingCosts" value="9000">
+                </div>
+                <div class="input-group">
+                    <label for="annualPropertyTax">Annual Property Tax ($):</label>
+                    <input type="number" id="annualPropertyTax" value="3600">
+                </div>
+                <div class="input-group">
+                    <label for="annualHomeInsurance">Annual Home Insurance ($):</label>
+                    <input type="number" id="annualHomeInsurance" value="1200">
+                </div>
+                <div class="input-group">
+                    <label for="monthlyHoa">Monthly HOA Fees ($):</label>
+                    <input type="number" id="monthlyHoa" value="50">
+                </div>
+                <div class="input-group">
+                    <label for="annualMaintenance">Annual Maintenance & Repairs ($):</label>
+                    <input type="number" id="annualMaintenance" value="1500">
+                </div>
+                <div class="input-group">
+                    <label for="annualAppreciationRate">Annual Home Appreciation Rate (%):</label>
+                    <input type="number" id="annualAppreciationRate" value="2" step="0.1">
+                </div>
+            </div>
+
+            </div>
+
+        <div class="results-and-chart">
+            <div class="results">
+                <h2>Results Over <span id="displayComparisonPeriod">10</span> Years:</h2>
+                <p>Total Renting Cost: <span id="totalRentingCost">$0.00</span></p>
+                <p>Total Buying Cost (Net of Equity): <span id="totalBuyingCost">$0.00</span></p>
+                <hr>
+                <p id="recommendation" class="highlight">Choose an option to compare!</p>
+            </div>
+
+            <div class="chart-container">
+                <h3>Cost Comparison</h3>
+                <canvas id="costComparisonChart"></canvas>
+            </div>
         </div>
 
-        <div class="input-section">
-            <h2>Renting Details</h2>
-            <div class="input-group">
-                <label for="currentMonthlyRent">Current Monthly Rent ($):</label>
-                <input type="number" id="currentMonthlyRent" value="1500">
-            </div>
-            <div class="input-group">
-                <label for="annualRentIncrease">Annual Rent Increase (%):</label>
-                <input type="number" id="annualRentIncrease" value="3" step="0.1">
-            </div>
-        </div>
+        <button id="calculateBtn" style="width: 100%;">Compare Options</button>
 
-        <div class="input-section">
-            <h2>Buying Details</h2>
-            <div class="input-group">
-                <label for="homePurchasePrice">Home Purchase Price ($):</label>
-                <input type="number" id="homePurchasePrice" value="300000">
-            </div>
-            <div class="input-group">
-                <label for="downPaymentAmount">Down Payment ($):</label>
-                <input type="number" id="downPaymentAmount" value="30000">
-            </div>
-            <div class="input-group">
-                <label for="annualInterestRate">Annual Mortgage Interest Rate (%):</label>
-                <input type="number" id="annualInterestRate" value="4.5" step="0.01">
-            </div>
-            <div class="input-group">
-                <label for="loanTermYears">Mortgage Term (Years):</label>
-                <input type="number" id="loanTermYears" value="30">
-            </div>
-            <div class="input-group">
-                <label for="closingCosts">Closing Costs ($):</label>
-                <input type="number" id="closingCosts" value="9000">
-            </div>
-            <div class="input-group">
-                <label for="annualPropertyTax">Annual Property Tax ($):</label>
-                <input type="number" id="annualPropertyTax" value="3600">
-            </div>
-            <div class="input-group">
-                <label for="annualHomeInsurance">Annual Home Insurance ($):</label>
-                <input type="number" id="annualHomeInsurance" value="1200">
-            </div>
-            <div class="input-group">
-                <label for="monthlyHoa">Monthly HOA Fees ($):</label>
-                <input type="number" id="monthlyHoa" value="50">
-            </div>
-            <div class="input-group">
-                <label for="annualMaintenance">Annual Maintenance & Repairs ($):</label>
-                <input type="number" id="annualMaintenance" value="1500">
-            </div>
-            <div class="input-group">
-                <label for="annualAppreciationRate">Annual Home Appreciation Rate (%):</label>
-                <input type="number" id="annualAppreciationRate" value="2" step="0.1">
-            </div>
-        </div>
-
-        <button id="calculateBtn">Compare Options</button>
-
-        <div class="results">
-            <h2>Results Over <span id="displayComparisonPeriod">10</span> Years:</h2>
-            <p>Total Renting Cost: <span id="totalRentingCost">$0.00</span></p>
-            <p>Total Buying Cost (Net of Equity): <span id="totalBuyingCost">$0.00</span></p>
-            <hr>
-            <p id="recommendation" class="highlight">Choose an option to compare!</p>
-        </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
 
