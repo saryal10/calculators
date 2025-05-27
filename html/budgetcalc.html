@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Calculator & Planner</title>
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -19,6 +19,7 @@
             justify-content: space-between; /* Push footer to bottom */
             align-items: center; /* Center content horizontally */
             min-height: 100vh; /* Make sure body takes full viewport height */
+            box-sizing: border-box; /* Include padding in height calculation */
         }
 
         .calculator-container {
@@ -49,30 +50,36 @@
         }
 
         .income-item label, .expense-item label {
-            flex: 2;
+            /* Changed from flex: 2 to a fixed width for consistent alignment */
+            width: 150px; /* Adjust as needed */
             text-align: right;
             font-size: 0.95em;
             color: #555;
             padding-right: 10px;
+            flex-shrink: 0; /* Prevent label from shrinking */
         }
 
         .income-item input[type="text"],
         .expense-item input[type="text"] {
-            flex: 3;
+            flex: 3; /* Allows the text input to take more space */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
+            box-sizing: border-box; /* Ensures padding is included in width */
+            min-width: 0; /* Allows shrinking in flex container */
         }
 
         .income-item input[type="number"],
         .expense-item input[type="number"] {
-            flex: 2;
+            flex: 1.5; /* Gives the number input a bit less space than text */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             text-align: right;
+            box-sizing: border-box; /* Ensures padding is included in width */
+            min-width: 0; /* Allows shrinking in flex container */
         }
 
         .remove-btn {
@@ -85,6 +92,7 @@
             transition: background-color 0.3s ease;
             font-size: 0.8em;
             white-space: nowrap;
+            flex-shrink: 0; /* Prevent button from shrinking */
         }
         .remove-btn:hover {
             background-color: #c82333;
@@ -185,6 +193,7 @@
             color: #777;
             background-color: #e9ecef; /* Slightly different background for visual separation */
             border-top: 1px solid #ddd;
+            box-sizing: border-box;
         }
 
         /* Responsive adjustments */
@@ -205,6 +214,7 @@
             .income-item label, .expense-item label {
                 text-align: left;
                 padding-right: 0;
+                width: auto; /* Allow label to take natural width */
             }
             .income-item input, .expense-item input {
                 width: 100%;
@@ -227,7 +237,7 @@
                 <label>Main Income:</label>
                 <input type="text" value="Salary">
                 <input type="number" class="income-value" value="3500">
-                <button class="remove-btn" style="visibility: hidden;">Remove</button> 
+                <button class="remove-btn" style="visibility: hidden;">Remove</button>
             </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
@@ -298,7 +308,7 @@
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
-    
+
     <div class="footer-copyright">
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
