@@ -110,12 +110,13 @@
             width: 100%; /* Take full width of its parent to align right */
             box-sizing: border-box;
             transition: color 0.3s ease;
+            outline: none; /* --- ADD THIS LINE --- */
         }
         .remove-btn:hover {
             color: #c82333; /* Darker red on hover */
             text-decoration: none; /* Remove underline on hover */
         }
-
+        /* --- End of .remove-btn styles --- */
 
         .add-item-btn {
             background-color: #28a745;
@@ -260,7 +261,7 @@
                     </div>
                     <button class="remove-btn initial-item"></button>
                 </div>
-                </div>
+            </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
 
