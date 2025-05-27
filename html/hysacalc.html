@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>High-Yield Savings Account Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         /* General Body Styles for sticky footer layout */
         body {
@@ -24,7 +23,7 @@
         }
 
         .calculator-container {
-            max-width: 600px; /* Increased max-width to accommodate chart */
+            max-width: 480px; /* Consistent width with other calculators */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -89,16 +88,6 @@
             padding-top: 20px;
             border-top: 2px solid #eee;
             text-align: center; /* Center the results text */
-            display: flex; /* Make results section a flex container */
-            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-            justify-content: space-around; /* Distribute space */
-            gap: 20px; /* Space between summary and chart */
-        }
-
-        .results-summary {
-            flex: 1; /* Allow summary to take available space */
-            min-width: 280px; /* Minimum width for summary */
-            text-align: left; /* Align summary text left */
         }
 
         .results h2 {
@@ -117,35 +106,6 @@
             color: #007bff;
             font-weight: bold;
         }
-
-        .chart-container {
-            flex: 1; /* Allow chart to take available space */
-            min-width: 280px; /* Minimum width for the chart */
-            max-width: 350px; /* Max width for the chart */
-            height: 300px; /* Fixed height for the chart container */
-            position: relative; /* Needed for Chart.js responsiveness */
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #fcfcfc;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .chart-container h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .chart-container canvas {
-            max-width: 100%;
-            height: 250px; /* Adjust canvas height to fit container */
-        }
-
 
         .back-link {
             display: block;
@@ -187,15 +147,6 @@
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
             }
-            .results {
-                flex-direction: column; /* Stack summary and chart vertically */
-                align-items: center;
-            }
-            .results-summary, .chart-container {
-                min-width: unset; /* Remove min-width for full flexibility */
-                width: 100%; /* Take full width on small screens */
-                max-width: unset; /* Remove max-width constraint */
-            }
         }
     </style>
 </head>
@@ -230,16 +181,10 @@
         <button id="calculateBtn">Calculate Interest</button>
 
         <div class="results">
-            <div class="results-summary">
-                <h2>Calculated Results:</h2>
-                <p>Total Principal Invested: <span id="totalPrincipal">$0.00</span></p>
-                <p>Total Interest Earned: <span id="totalInterest">$0.00</span></p>
-                <p>Ending Balance: <span id="endingBalance">$0.00</span></p>
-            </div>
-            <div class="chart-container">
-                <h3>Investment Breakdown</h3>
-                <canvas id="hysaChart"></canvas>
-            </div>
+            <h2>Calculated Results:</h2>
+            <p>Total Principal Invested: <span id="totalPrincipal">$0.00</span></p>
+            <p>Total Interest Earned: <span id="totalInterest">$0.00</span></p>
+            <p>Ending Balance: <span id="endingBalance">$0.00</span></p>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
