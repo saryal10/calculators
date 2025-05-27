@@ -24,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 550px;
+            max-width: 600px; /* Adjusted width to better accommodate chart */
             padding: 30px;
             background-color: #ffffff;
             border-radius: 8px;
@@ -32,6 +32,27 @@
             margin-bottom: 20px;
             width: 100%;
             box-sizing: border-box;
+            display: flex; /* Make it a flex container */
+            flex-direction: column; /* Stack children (h1, p, input-groups, etc.) vertically */
+            align-items: center; /* Center items horizontally within the container */
+        }
+
+        /* FIX: Center the h1 title */
+        .calculator-container h1 {
+            width: 100%; /* Ensure h1 takes full width of its parent */
+            text-align: center; /* Center the text within the h1 */
+            margin-top: 0;
+            margin-bottom: 10px; /* Adjust spacing */
+            color: #007bff;
+        }
+
+        /* Center the paragraph below the title */
+        .calculator-container p {
+            width: 100%;
+            text-align: center;
+            margin-top: -10px; /* Pull it closer to the h1 */
+            margin-bottom: 25px; /* Space before inputs */
+            color: #555;
         }
 
         .input-group {
@@ -40,6 +61,7 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 5px;
+            width: 100%; /* Ensure input groups take full width */
         }
 
         .input-group label {
@@ -89,6 +111,7 @@
             padding-top: 20px;
             border-top: 2px solid #eee;
             text-align: center;
+            width: 100%; /* Ensure results take full width */
         }
 
         .results h2 {
@@ -122,6 +145,8 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #f9f9f9;
+            width: 100%; /* Ensure radio group takes full width */
+            box-sizing: border-box; /* Include padding in width */
         }
 
         .radio-group p {
@@ -152,6 +177,7 @@
             color: #007bff;
             text-decoration: none;
             font-size: 0.95em;
+            width: 100%; /* Ensures it centers within the calculator-container */
         }
 
         .back-link:hover {
@@ -171,6 +197,29 @@
             box-sizing: border-box;
         }
 
+        /* Chart Styles */
+        .chart-container {
+            width: 100%;
+            max-width: 400px; /* Adjust as needed */
+            margin: 20px auto; /* Center the chart */
+            height: 300px; /* Fixed height for the chart container */
+            position: relative; /* Needed for Chart.js responsiveness */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically too */
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            max-height: 100%; /* Ensure canvas scales within container */
+        }
+
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .calculator-container {
@@ -184,13 +233,6 @@
             .radio-group p {
                 text-align: left;
             }
-        }
-
-        /* Chart Styles */
-        .chart-container {
-            width: 100%;
-            max-width: 400px; /* Adjust as needed */
-            margin: 20px auto; /* Center the chart */
         }
     </style>
 </head>
@@ -240,6 +282,10 @@
         <div class="results">
             <h2>Calculated Future Value:</h2>
             <p id="futureValue" class="value">$0.00</p>
+            <p class="label">Total Payments Made:</p>
+            <p id="totalPayments" class="value" style="color: #007bff; font-size: 1.2em;">$0.00</p>
+            <p class="label">Total Interest Earned:</p>
+            <p id="totalInterest" class="value" style="color: #ff9800; font-size: 1.2em;">$0.00</p>
         </div>
 
         <div class="chart-container">
