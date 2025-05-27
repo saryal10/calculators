@@ -11,10 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const assetChartCanvas = document.getElementById('assetChart');
     const liabilityChartCanvas = document.getElementById('liabilityChart');
 
-    let assetChart; // To hold the Chart.js instance for assets
-    let liabilityChart; // To hold the Chart.js instance for liabilities
+    let assetChart;
+    let liabilityChart;
 
-    // Helper to Generate Random Colors for Chart
     function getRandomColor() {
         const letters = '0123456789ABCDEF';
         let color = '#';
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return color;
     }
 
-    // Function to create a new input row (reusable for assets and liabilities)
     function createInputRow(type, labelText = '', value = '', removable = true) {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add(`${type}-item`);
@@ -32,12 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const label = document.createElement('label');
         label.textContent = labelText;
 
-        const inputGroup = document.createElement('div'); // Container for inputs and link
+        const inputGroup = document.createElement('div');
         inputGroup.classList.add('input-group');
 
         const nameInput = document.createElement('input');
         nameInput.type = 'text';
-        nameInput.value = labelText; // Pre-fill with labelText
+        nameInput.value = labelText;
         nameInput.placeholder = `e.g., ${labelText}`;
         nameInput.addEventListener('input', calculateNetWorth);
 
@@ -46,48 +44,47 @@ document.addEventListener('DOMContentLoaded', function() {
         valueInput.classList.add(`${type}-value`);
         valueInput.value = value;
         valueInput.placeholder = 'Amount ($)';
-        valueInput.step = '0.01'; // Allow cents
+        valueInput.step = '0.01';
         valueInput.addEventListener('input', calculateNetWorth);
 
         inputGroup.appendChild(nameInput);
         inputGroup.appendChild(valueInput);
 
         const removeLink = document.createElement('a');
-        removeLink.href = '#'; // Prevent page jump
+        removeLink.href = '#';
         removeLink.classList.add('remove-link');
         removeLink.textContent = 'Remove';
+        // IMPORTANT: The 'removable' parameter from the function call
+        // for newly created items (when 'Add Another' is clicked)
+        // will be 'true', so this block will NOT hide them.
         if (!removable) {
-            removeLink.style.display = 'none'; // Hide for initial items
-        } else {
-            removeLink.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent link navigation
-                itemDiv.remove();
-                calculateNetWorth(); // Recalculate after removing
-            });
+            removeLink.style.display = 'none'; // Only hides if 'removable' is explicitly false
         }
-        
+        removeLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            itemDiv.remove();
+            calculateNetWorth();
+        });
+
         itemDiv.appendChild(label);
         itemDiv.appendChild(inputGroup);
-        // CRITICAL FIX: Append the removeLink *after* the inputGroup, but still within itemDiv.
-        // The CSS for .asset-item and .liability-item being `flex-direction: column`
-        // will naturally stack them.
-        itemDiv.appendChild(removeLink); 
+        itemDiv.appendChild(removeLink); // Ensures it's a direct child of itemDiv
 
         return itemDiv;
     }
 
-    // Add Asset/Liability Row Functions
     addAssetBtn.addEventListener('click', function() {
+        // When 'Add Another Asset' is clicked, 'true' is passed for 'removable'
         assetInputsContainer.appendChild(createInputRow('asset', 'New Asset', 0, true));
-        calculateNetWorth(); // Recalculate after adding
+        calculateNetWorth();
     });
 
     addLiabilityBtn.addEventListener('click', function() {
+        // When 'Add Another Liability' is clicked, 'true' is passed for 'removable'
         liabilityInputsContainer.appendChild(createInputRow('liability', 'New Liability', 0, true));
-        calculateNetWorth(); // Recalculate after adding
+        calculateNetWorth();
     });
 
-    // Function to calculate net worth and update charts
     function calculateNetWorth() {
         let totalAssets = 0;
         const assetDataForChart = [];
@@ -119,12 +116,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const netWorth = totalAssets - totalLiabilities;
 
-        // Display results
         totalAssetsSpan.textContent = `$${totalAssets.toFixed(2)}`;
         totalLiabilitiesSpan.textContent = `$${totalLiabilities.toFixed(2)}`;
         netWorthSpan.textContent = `$${netWorth.toFixed(2)}`;
 
-        // Apply color based on net worth
         netWorthSpan.classList.remove('positive', 'negative');
         if (netWorth >= 0) {
             netWorthSpan.classList.add('positive');
@@ -132,12 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
             netWorthSpan.classList.add('negative');
         }
 
-        // Update Charts
         assetChart = updateChart(assetChart, assetChartCanvas, assetDataForChart, 'Asset Breakdown');
         liabilityChart = updateChart(liabilityChart, liabilityChartCanvas, liabilityDataForChart, 'Liability Breakdown');
     }
 
-    // Generic function to update a Chart.js instance
     function updateChart(chartInstance, canvasElement, dataArray, title) {
         const labels = dataArray.map(item => item.label);
         const data = dataArray.map(item => item.value);
@@ -189,13 +182,10 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', calculateNetWorth);
         });
 
-    // Initial setup for default items (hiding the remove link for them)
-    // We'll hide the remove links for the first few pre-defined items.
-    document.querySelectorAll('#assetInputs .asset-item .remove-link').forEach((link, index) => {
-        // Assuming the first 5 items are the initial ones provided in the HTML
-        if (index < 5) {
-            link.style.display = 'none';
-        }
+    // --- CRITICAL CHANGE HERE ---
+    // Make ALL existing remove links visible by removing the 'if (index < X)' check
+    document.querySelectorAll('#assetInputs .asset-item .remove-link').forEach((link) => {
+        link.style.display = 'block'; // Make it visible
         link.addEventListener('click', function(e) {
             e.preventDefault();
             link.closest('.asset-item').remove();
@@ -203,17 +193,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.querySelectorAll('#liabilityInputs .liability-item .remove-link').forEach((link, index) => {
-        // Assuming the first 4 items are the initial ones provided in the HTML
-        if (index < 4) {
-            link.style.display = 'none';
-        }
+    document.querySelectorAll('#liabilityInputs .liability-item .remove-link').forEach((link) => {
+        link.style.display = 'block'; // Make it visible
         link.addEventListener('click', function(e) {
             e.preventDefault();
             link.closest('.liability-item').remove();
             calculateNetWorth();
         });
     });
+    // --- END CRITICAL CHANGE ---
 
     // Initial calculation on page load
     calculateNetWorth();
