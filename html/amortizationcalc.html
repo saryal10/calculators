@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amortization Schedule Calculator</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body Styles for sticky footer layout */
@@ -100,6 +99,17 @@
             background-color: #0056b3;
         }
 
+        /* Error Message Styles */
+        #errorMessage {
+            color: #dc3545; /* Red color for error messages */
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+        }
+
+
         /* Main results section layout */
         .results-section { /* Renamed from .results to avoid conflict with summary p.results */
             margin-top: 30px;
@@ -185,6 +195,7 @@
             padding: 15px;
             background-color: #f8f8f8;
             box-sizing: border-box;
+            display: none; /* Hidden by default */
         }
 
         #amortizationScheduleContainer h2 {
@@ -302,6 +313,8 @@
         <h1>Amortization Schedule Calculator</h1>
         <p class="description">Generate a detailed payment schedule for your loan, showing principal and interest breakdown for each payment.</p>
 
+        <div id="errorMessage" style="display: none;"></div>
+
         <div class="input-group">
             <label for="loanAmount">Loan Amount ($):</label>
             <input type="number" id="loanAmount" value="200000" min="0">
@@ -335,7 +348,7 @@
             </div>
         </div>
 
-        <div id="amortizationScheduleContainer" style="display: none;">
+        <div id="amortizationScheduleContainer">
             <h2>Amortization Schedule:</h2>
             <div id="amortizationTableWrapper">
                 <table id="amortizationTable">
@@ -361,6 +374,6 @@
         &copy; 2025 Aryal & Logistics LLC. All rights reserved.
     </div>
 
-    <script src="../scripts/amortizationcalc-script.js"></script>
+    <script src="amortizationcalc-script.js"></script>
 </body>
 </html>
