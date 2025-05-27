@@ -121,15 +121,15 @@
             flex: 1; /* Allow chart to take available space */
             min-width: 280px; /* Minimum width for the chart */
             max-width: 350px; /* Max width for the chart on larger screens */
-            /* REMOVED: height: 300px; -- This was the problem on mobile */
-            position: relative; /* Keep relative for correct positioning of children */
+            height: auto; /* Let Chart.js determine height, or explicitly set a max-height if needed */
+            position: relative; /* Keep relative */
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px; /* Padding for the container border */
             background-color: #fcfcfc;
             box-sizing: border-box;
             display: flex;
-            flex-direction: column; /* Stack h3 and chart-wrapper vertically */
+            flex-direction: column; /* Stack h3 and canvas vertically */
             align-items: center; /* Center content horizontally */
         }
 
@@ -140,22 +140,12 @@
             margin-bottom: 10px; /* Space below title */
         }
 
-        /* NEW: Styles for the chart wrapper to maintain aspect ratio */
-        .chart-wrapper {
-            width: 100%; /* Take full available width within .chart-container */
-            position: relative; /* Required for absolute positioning of canvas */
-            padding-bottom: 100%; /* This creates a square space (height = width) */
-            height: 0; /* Crucial for the padding-bottom trick to work */
-            overflow: hidden; /* Hides any overflow in case of issues */
-        }
-
-        /* NEW: Styles for the canvas inside the wrapper */
-        .chart-wrapper canvas {
-            position: absolute; /* Position absolutely within the wrapper */
-            top: 0;
-            left: 0;
-            width: 100% !important; /* Force canvas to fill the wrapper */
-            height: 100% !important; /* Force canvas to fill the wrapper */
+        /* Simplified canvas styles: Let Chart.js handle dimensions with aspectRatio */
+        .chart-container canvas {
+            max-width: 100%; /* Ensure it stays within its container */
+            height: auto; /* Let Chart.js control the height based on aspectRatio */
+            /* Remove all position, top, left, and !important properties here */
+            position: static; /* Reset to default positioning */
         }
 
 
@@ -214,9 +204,8 @@
                 min-width: unset;
                 width: 100%; /* Take full width on small screens */
                 max-width: unset; /* Remove max-width constraint */
-                height: auto; /* Allow height to be determined by content (chart-wrapper) */
+                height: auto; /* Ensure height is flexible */
             }
-            /* .chart-wrapper already handles aspect ratio on mobile too */
         }
     </style>
 </head>
@@ -259,9 +248,7 @@
             </div>
             <div class="chart-container">
                 <h3>Investment Breakdown</h3>
-                <div class="chart-wrapper"> <canvas id="hysaChart"></canvas>
-                </div>
-            </div>
+                <canvas id="hysaChart"></canvas> </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
