@@ -48,7 +48,7 @@
             width: 100%; /* Full width for label */
         }
 
-        .input-group input[type="number"],
+        .input-group inputtype="number"],
         .input-group select {
             width: 100%;
             padding: 10px;
@@ -88,19 +88,20 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            display: flex; /* Make results section a flex container */
+            display: flex; /* Enable flexbox */
             flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-            justify-content: center; /* Center items to balance space */
+            justify-content: flex-start; /* Align items to the start of the line */
+            align-items: flex-start; /* Align items to the start of the container */
             gap: 20px; /* Space between summary and charts */
         }
 
         .results-summary {
             flex: 1; /* Allow summary to take available space */
-            min-width: 280px; /* Minimum width for summary */
+            min-width: 300px; /* Minimum width for summary */
             text-align: left; /* Align summary text left */
-            max-width: 450px; /* Limit summary width on larger screens */
+            max-width: 400px; /* Limit summary width */
         }
-        
+
         .results h2 {
             margin-top: 0; /* Remove default h2 margin */
             color: #333;
@@ -142,11 +143,10 @@
         }
 
         .chart-wrapper {
-            /* Adjusted for smaller side-by-side charts */
-            width: 45%; /* Take almost half the width of the results container */
+            width: calc(50% - 10px); /* Take up roughly half the container width, with some margin */
             min-width: 250px; /* Minimum width to prevent charts from becoming too small */
-            max-width: 350px; /* Max width for each chart to keep them compact */
-            height: 300px; /* Fixed height for the chart container, smaller than before */
+            max-width: 350px; /* Max width for each chart */
+            height: 300px; /* Fixed height for the chart container */
             position: relative; /* Needed for Chart.js responsiveness */
             display: flex;
             flex-direction: column;
@@ -199,40 +199,18 @@
         }
 
         /* Responsive adjustments */
-        @media (max-width: 960px) { /* Adjust breakpoint for chart stacking */
-            .calculator-container {
-                max-width: 700px; /* Slightly wider for two charts on tablets */
-            }
+        @media (max-width: 768px) { /* Adjust breakpoint for tablet-sized screens */
             .results {
-                justify-content: center; /* Keep charts centered when they might wrap */
-            }
-            .results-summary {
-                max-width: 100%; /* Allow summary to expand if charts wrap */
-            }
-            .chart-wrapper {
-                width: 48%; /* Adjust width to fit two in a row on smaller wide screens */
-                min-width: 280px; /* Allow them to shrink a bit more before stacking */
-                max-width: unset; /* Let them take necessary space up to half */
-            }
-        }
-        @media (max-width: 650px) { /* Stack charts vertically on smaller screens */
-            .calculator-container {
-                max-width: 500px;
-            }
-            .results {
-                flex-direction: column; /* Stack summary and charts vertically */
+                flex-direction: column; /* Stack summary and charts vertically on smaller screens */
                 align-items: center;
             }
             .results-summary {
-                width: 100%; /* Take full width on small screens */
+                width: 100%;
+                max-width: none;
             }
             .chart-wrapper {
-                width: 100%; /* Take full width when stacked */
-                max-width: 350px; /* Maintain a max width for stacked charts */
-            }
-            .results h2, .results p.label, .results p.value, .results h3 {
-                text-align: center;
-                width: 100%;
+                width: 90%; /* Take up most of the width when stacked */
+                max-width: 400px; /* Limit max width when stacked */
             }
         }
     </style>
