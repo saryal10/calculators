@@ -47,12 +47,11 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 15px;
-            flex-wrap: nowrap; /* Prevent items from wrapping on one line too early */
+            flex-wrap: nowrap; /* Keep items on one line if possible */
         }
 
         .income-item label, .expense-item label {
-            /* flex: 2; /* Removed this and used fixed width */
-            width: 150px; /* Adjust as needed */
+            width: 150px; /* Fixed width for labels */
             text-align: right;
             font-size: 0.95em;
             color: #555;
@@ -62,25 +61,27 @@
 
         .income-item input[type="text"],
         .expense-item input[type="text"] {
-            flex: 3; /* Allows the text input to take more space */
+            flex: 2; /* Increased flex for the text input to take more space */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             box-sizing: border-box;
-            min-width: 80px; /* Give a reasonable minimum width */
+            min-width: 80px; /* Reasonable min-width */
+            max-width: 180px; /* Add a max-width to control overall size */
         }
 
         .income-item input[type="number"],
         .expense-item input[type="number"] {
-            flex: 1.5; /* Gives the number input a bit less space than text */
+            flex: 1; /* Gives the number input a consistent flex basis */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 0.9em;
             text-align: right;
             box-sizing: border-box;
-            min-width: 60px; /* Give a reasonable minimum width */
+            min-width: 60px; /* Reasonable min-width */
+            max-width: 100px; /* Add a max-width to control overall size */
         }
 
         .remove-btn {
@@ -88,13 +89,16 @@
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 8px 12px;
+            padding: 6px 10px; /* Decreased padding for smaller button */
             cursor: pointer;
             transition: background-color 0.3s ease;
-            font-size: 0.8em;
+            font-size: 0.75em; /* Decreased font size */
             white-space: nowrap;
             flex-shrink: 0; /* Prevent button from shrinking */
-            /* Removed visibility: hidden here - it will be set by JS dynamically */
+            height: 34px; /* Set a fixed height to align with inputs */
+            display: flex; /* Use flex to center text vertically if needed */
+            align-items: center; /* Vertically center text */
+            justify-content: center; /* Horizontally center text */
         }
         .remove-btn:hover {
             background-color: #c82333;
@@ -223,7 +227,8 @@
                 box-sizing: border-box;
             }
             .remove-btn {
-                width: 100%;
+                width: 100%; /* Make button full width when stacked */
+                height: auto; /* Allow height to adjust */
             }
         }
     </style>
@@ -239,8 +244,7 @@
                 <label>Main Income:</label>
                 <input type="text" value="Salary">
                 <input type="number" class="income-value" value="3500">
-                <button class="remove-btn initial-item" style="visibility: hidden;">Remove</button>
-            </div>
+                <button class="remove-btn initial-item"></button> </div>
         </div>
         <button id="addIncomeBtn" class="add-item-btn">Add Another Income Source</button>
 
@@ -250,8 +254,7 @@
                 <label>Housing (Rent/Mortgage):</label>
                 <input type="text" value="Rent/Mortgage">
                 <input type="number" class="expense-value" value="1200">
-                <button class="remove-btn initial-item" style="visibility: hidden;">Remove</button>
-            </div>
+                <button class="remove-btn initial-item"></button> </div>
             <div class="expense-item">
                 <label>Utilities:</label>
                 <input type="text" value="Utilities">
