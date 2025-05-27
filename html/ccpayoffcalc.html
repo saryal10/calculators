@@ -24,7 +24,7 @@
         }
 
         .calculator-container {
-            max-width: 600px; /* Increased max-width to accommodate charts */
+            max-width: 960px; /* Increased max-width to accommodate charts side-by-side */
             padding: 30px;
             background-color: #ffffff; /* Added background for clarity */
             border-radius: 8px;
@@ -88,7 +88,7 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
-            text-align: center; /* Center the results text */
+            /* text-align: center; /* Center the results text */ */
             display: flex; /* Make results section a flex container */
             flex-wrap: wrap; /* Allow items to wrap on smaller screens */
             justify-content: space-around; /* Distribute space */
@@ -100,7 +100,7 @@
             min-width: 280px; /* Minimum width for summary */
             text-align: left; /* Align summary text left */
         }
-
+        
         .results h2 {
             margin-top: 0; /* Remove default h2 margin */
             color: #333;
@@ -134,10 +134,19 @@
             font-size: 1.5em;
         }
 
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+            width: 100%;
+        }
+
         .chart-wrapper {
             flex: 1; /* Allow charts to take available space */
-            min-width: 280px; /* Minimum width for each chart */
-            max-width: 350px; /* Max width for each chart */
+            min-width: 320px; /* Minimum width for each chart */
+            max-width: 450px; /* Max width for each chart to avoid excessive stretching */
+            height: 350px; /* Fixed height for the chart container */
+            position: relative; /* Needed for Chart.js responsiveness */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -150,7 +159,7 @@
 
         .chart-wrapper canvas {
             max-width: 100%;
-            height: 200px; /* Adjusted height for more compact charts */
+            height: 300px; /* Adjusted height for more compact charts, fills most of wrapper */
         }
 
         .chart-wrapper h3 {
@@ -158,7 +167,7 @@
             margin-bottom: 15px;
             text-align: center;
             color: #333;
-            font-size: 1.1em;
+            font-size: 1.2em;
             border-bottom: none; /* Remove border for chart titles */
         }
 
@@ -189,6 +198,24 @@
         }
 
         /* Responsive adjustments */
+        @media (max-width: 960px) { /* Adjust breakpoint for chart stacking */
+            .calculator-container {
+                max-width: 600px; /* Revert to single column width for tablets */
+            }
+            .results {
+                flex-direction: column; /* Stack summary and charts vertically */
+                align-items: center;
+            }
+            .results-summary {
+                width: 100%; /* Take full width on small screens */
+                max-width: unset; /* Remove max-width constraint */
+            }
+            .chart-wrapper {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width on small screens */
+                max-width: 450px; /* Keep a max-width for charts even when stacked */
+            }
+        }
         @media (max-width: 600px) {
             .calculator-container {
                 padding: 20px;
@@ -202,14 +229,9 @@
             .input-group select {
                 width: 100%; /* Ensure inputs take full width */
             }
-            .results {
-                flex-direction: column; /* Stack summary and charts vertically */
-                align-items: center;
-            }
-            .results-summary, .chart-wrapper {
-                min-width: unset; /* Remove min-width for full flexibility */
-                width: 100%; /* Take full width on small screens */
-                max-width: unset; /* Remove max-width constraint */
+            .results h2, .results p.label, .results p.value, .results h3 {
+                text-align: center;
+                width: 100%;
             }
         }
     </style>
@@ -274,9 +296,7 @@
             </div>
 
             <div class="chart-wrapper">
-                <h3>Interest Savings Comparison</h3>
-                <canvas id="interestSavingsChart"></canvas>
-            </div>
+                <h3>Payoff Breakdown (with Extra Payment)</h3> <canvas id="extraPaymentChart"></canvas> </div>
         </div>
         <a href="../index.html" class="back-link">← Back to Main Calculators</a>
     </div>
