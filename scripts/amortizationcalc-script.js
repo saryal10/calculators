@@ -1,203 +1,191 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Input elements
-    const loanAmountInput = document.getElementById('loanAmount');
-    const annualInterestRateInput = document.getElementById('annualInterestRate');
-    const loanTermYearsInput = document.getElementById('loanTermYears');
-    const calculateBtn = document.getElementById('calculateBtn');
+// scripts/amortizationcalc-script.js
 
-    // Output elements
-    const monthlyPaymentSpan = document.getElementById('monthlyPayment');
-    const amortizationScheduleDiv = document.getElementById('amortizationSchedule');
-    const amortizationChartCanvas = document.getElementById('amortizationChart'); // Get the canvas element
-    let amortizationChart; // Declare a variable to hold the Chart.js instance
+// Get references to input elements
+const loanAmountInput = document.getElementById('loanAmount');
+const annualInterestRateInput = document.getElementById('annualInterestRate');
+const loanTermYearsInput = document.getElementById('loanTermYears');
+const calculateButton = document.getElementById('calculateBtn'); // Get the button
 
-    calculateBtn.addEventListener('click', generateSchedule);
+// Get references to output elements
+const monthlyPaymentElement = document.getElementById('monthlyPayment');
+const amortizationScheduleDiv = document.getElementById('amortizationSchedule');
+const amortizationChartCanvas = document.getElementById('amortizationChart');
+let amortizationChart; // To store the Chart.js instance
 
-    function generateSchedule() {
-        const loanAmount = parseFloat(loanAmountInput.value);
-        const annualRate = parseFloat(annualInterestRateInput.value);
-        const loanTermYears = parseFloat(loanTermYearsInput.value);
-
-        // --- Input Validation ---
-        if (isNaN(loanAmount) || loanAmount <= 0) {
-            alert('Please enter a valid loan amount (greater than 0).');
-            return;
-        }
-        if (isNaN(annualRate) || annualRate < 0) {
-            alert('Please enter a valid annual interest rate (0 or greater).');
-            return;
-        }
-        if (isNaN(loanTermYears) || loanTermYears <= 0) {
-            alert('Please enter a valid loan term in years (greater than 0).');
-            return;
-        }
-
-        const monthlyRate = annualRate / 100 / 12;
-        const totalPayments = loanTermYears * 12;
-
-        let monthlyPayment;
-
-        // Calculate Monthly Payment (Standard Loan Payment Formula)
-        if (monthlyRate === 0) {
-            monthlyPayment = loanAmount / totalPayments; // Simple division if 0 interest
-        } else {
-            // Check for division by zero if totalPayments is very high and monthlyRate is very low
-            const denominator = (Math.pow(1 + monthlyRate, totalPayments) - 1);
-            if (denominator === 0) {
-                alert('Calculation error: Interest rate and term combination too extreme.');
-                return;
-            }
-            monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / denominator;
-        }
+// --- Debounce Function ---
+// This function takes a function and a delay, and returns a new function
+// that will only execute the original function after the specified delay
+// has passed without being called again.
+function debounce(func, delay) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
+// --- End Debounce Function ---
 
 
-        // --- Display Monthly Payment ---
-        monthlyPaymentSpan.textContent = `$${monthlyPayment.toFixed(2)}`;
+// Function to calculate amortization and update UI
+function calculateAmortization() {
+    const loanAmount = parseFloat(loanAmountInput.value);
+    const annualInterestRate = parseFloat(annualInterestRateInput.value);
+    const loanTermYears = parseFloat(loanTermYearsInput.value);
 
-        // --- Generate Amortization Schedule ---
-        let currentBalance = loanAmount;
-        let schedule = [];
-        let totalInterestPaid = 0;
-        let totalPrincipalPaid = 0;
-
-        for (let i = 1; i <= totalPayments; i++) {
-            const interestPayment = currentBalance * monthlyRate;
-            let principalPayment = monthlyPayment - interestPayment;
-
-            // Adjust last payment to ensure balance goes to exactly zero
-            // Ensure principalPayment doesn't exceed currentBalance at any point (small floating point errors)
-            if (i === totalPayments || principalPayment > currentBalance) {
-                principalPayment = currentBalance; // Pay off remaining balance
-                // Recalculate monthly payment for final month to avoid tiny remaining balance issues
-                monthlyPayment = interestPayment + principalPayment;
-            }
-
-            currentBalance -= principalPayment;
-
-            schedule.push({
-                paymentNum: i,
-                startingBalance: (i === 1) ? loanAmount : (loanAmount - totalPrincipalPaid), // Correct starting balance
-                interestPaid: interestPayment,
-                principalPaid: principalPayment,
-                endingBalance: currentBalance < 0.01 ? 0 : currentBalance // Ensure 0 for very small remainders
-            });
-
-            totalInterestPaid += interestPayment;
-            totalPrincipalPaid += principalPayment;
-        }
-
-        // Add a total row
-        schedule.push({
-            paymentNum: 'Total',
-            startingBalance: null, // Not applicable for total row
-            interestPaid: totalInterestPaid,
-            principalPaid: totalPrincipalPaid,
-            endingBalance: null
-        });
-
-        // --- Display Schedule Table ---
-        displayAmortizationTable(schedule);
-
-        // --- Update Pie Chart ---
-        updatePieChart(totalPrincipalPaid, totalInterestPaid);
-    }
-
-    function displayAmortizationTable(schedule) {
-        // Clear previous content
-        amortizationScheduleDiv.innerHTML = '';
-        amortizationScheduleDiv.style.display = 'block'; // Show the div
-
-        const table = document.createElement('table');
-        table.id = 'amortizationTable';
-
-        // Table Header
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
-        const headers = ['Pmt #', 'Starting Balance', 'Interest Paid', 'Principal Paid', 'Ending Balance'];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
-
-        // Table Body
-        const tbody = table.createTBody();
-        schedule.forEach(payment => {
-            const row = tbody.insertRow();
-            if (payment.paymentNum === 'Total') {
-                row.classList.add('total-row');
-            }
-
-            const formatCurrency = (value) => value !== null ? `$${value.toFixed(2)}` : '';
-
-            row.insertCell().textContent = payment.paymentNum;
-            row.insertCell().textContent = formatCurrency(payment.startingBalance);
-            row.insertCell().textContent = formatCurrency(payment.interestPaid);
-            row.insertCell().textContent = formatCurrency(payment.principalPaid);
-            row.insertCell().textContent = formatCurrency(payment.endingBalance);
-        });
-
-        amortizationScheduleDiv.appendChild(table);
-    }
-
-    // New function to handle the pie chart
-    function updatePieChart(principal, interest) {
-        const ctx = amortizationChartCanvas.getContext('2d');
-
-        // Destroy existing chart instance if it exists to prevent overlap
+    // Basic validation
+    if (isNaN(loanAmount) || loanAmount <= 0 ||
+        isNaN(annualInterestRate) || annualInterestRate < 0 ||
+        isNaN(loanTermYears) || loanTermYears <= 0) {
+        monthlyPaymentElement.textContent = '$0.00';
+        amortizationScheduleDiv.style.display = 'none';
+        // Clear chart if inputs are invalid
         if (amortizationChart) {
             amortizationChart.destroy();
+            amortizationChart = null;
         }
-
-        amortizationChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Total Principal Paid', 'Total Interest Paid'],
-                datasets: [{
-                    data: [principal, interest],
-                    backgroundColor: [
-                        '#007bff', // Blue for Principal
-                        '#ffc107'  // Yellow/Orange for Interest
-                    ],
-                    hoverBackgroundColor: [
-                        '#0056b3',
-                        '#e0a800'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false, // Allows the chart to fill its container
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Principal vs. Interest Over Loan Term',
-                        font: {
-                            size: 16
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed !== null) {
-                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
-                                }
-                                return label;
-                            }
-                        }
-                    },
-                    legend: {
-                        position: 'bottom', // Place legend at the bottom
-                    }
-                }
-            }
-        });
+        return;
     }
 
-    // Initial calculation on page load
-    generateSchedule();
-});
+    const monthlyInterestRate = annualInterestRate / 100 / 12;
+    const numberOfPayments = loanTermYears * 12;
+
+    let monthlyPayment;
+    if (annualInterestRate === 0) {
+        // Simple case for 0% interest
+        monthlyPayment = loanAmount / numberOfPayments;
+    } else {
+        // Amortization formula
+        monthlyPayment = (loanAmount * monthlyInterestRate) /
+                         (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments));
+    }
+
+
+    // Display monthly payment
+    monthlyPaymentElement.textContent = `$${monthlyPayment.toFixed(2)}`;
+
+    // Generate amortization schedule and update chart data
+    generateSchedule(loanAmount, monthlyInterestRate, numberOfPayments, monthlyPayment);
+}
+
+// Function to generate and display the amortization table and update the chart
+function generateSchedule(principal, monthlyInterestRate, numberOfPayments, monthlyPayment) {
+    let balance = principal;
+    let totalInterestPaid = 0;
+    const scheduleData = [];
+    const chartLabels = [];
+    const chartPrincipalData = [];
+    const chartInterestData = [];
+
+    let tableHTML = `
+        <table id="amortizationTable">
+            <thead>
+                <tr>
+                    <th>Payment No.</th>
+                    <th>Payment Amount</th>
+                    <th>Interest Paid</th>
+                    <th>Principal Paid</th>
+                    <th>Remaining Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    for (let i = 1; i <= numberOfPayments; i++) {
+        const interestPayment = balance * monthlyInterestRate;
+        const principalPayment = monthlyPayment - interestPayment;
+        balance -= principalPayment;
+        totalInterestPaid += interestPayment;
+
+        // Ensure balance doesn't go negative due to floating point inaccuracies
+        if (balance < 0) {
+            balance = 0;
+        }
+
+        scheduleData.push({
+            paymentNo: i,
+            paymentAmount: monthlyPayment,
+            interestPaid: interestPayment,
+            principalPaid: principalPayment,
+            remainingBalance: balance
+        });
+
+        tableHTML += `
+            <tr>
+                <td>${i}</td>
+                <td>$${monthlyPayment.toFixed(2)}</td>
+                <td>$${interestPayment.toFixed(2)}</td>
+                <td>$${principalPayment.toFixed(2)}</td>
+                <td>$${balance.toFixed(2)}</td>
+            </tr>
+        `;
+
+        // Add data for chart (e.g., every 12th payment or specific intervals)
+        if (i % 12 === 0 || i === 1 || i === numberOfPayments) { // Example: every year, first, and last
+             chartLabels.push(`Month ${i}`);
+             chartPrincipalData.push(principalPayment);
+             chartInterestData.push(interestPayment);
+        }
+    }
+
+    tableHTML += `
+            <tr class="total-row">
+                <td colspan="2">Total Interest Paid:</td>
+                <td>$${totalInterestPaid.toFixed(2)}</td>
+                <td colspan="2"></td>
+            </tr>
+            </tbody>
+        </table>
+    `;
+
+    amortizationScheduleDiv.innerHTML = `<h2>Amortization Schedule:</h2>${tableHTML}`;
+    amortizationScheduleDiv.style.display = 'block';
+
+
+    // Update Chart
+    if (amortizationChart) {
+        amortizationChart.destroy(); // Destroy existing chart before creating a new one
+    }
+
+    amortizationChart = new Chart(amortizationChartCanvas, {
+        type: 'pie', // Or 'bar', 'line' depending on what you want to show
+        data: {
+            labels: ['Total Principal', 'Total Interest'],
+            datasets: [{
+                data: [principal, totalInterestPaid],
+                backgroundColor: ['#007bff', '#dc3545'], // Blue for Principal, Red for Interest
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Allow chart to fill its container
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Principal vs. Interest (Overall)'
+                }
+            }
+        }
+    });
+}
+
+// Create a debounced version of your calculation function
+const debouncedCalculateAmortization = debounce(calculateAmortization, 500); // 500ms debounce delay
+
+
+// Add event listeners:
+// 1. On 'input' for immediate (debounced) feedback
+loanAmountInput.addEventListener('input', debouncedCalculateAmortization);
+annualInterestRateInput.addEventListener('input', debouncedCalculateAmortization);
+loanTermYearsInput.addEventListener('input', debouncedCalculateAmortization);
+
+// 2. On 'click' for the button (immediate calculation)
+calculateButton.addEventListener('click', calculateAmortization); // No debounce on click
+
+// Run calculation once on page load to show initial results
+document.addEventListener('DOMContentLoaded', calculateAmortization);
