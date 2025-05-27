@@ -38,10 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Core Calculation and UI Update Function ---
     function calculateBudget() {
-        // console.log('Calculating budget...'); // Debugging: Function called
         let totalIncome = 0;
         let totalExpenses = 0;
-        const expenseDataForChart = []; // To store { label: 'Expense Name', value: amount }
+        const expenseDataForChart = [];
 
         // Calculate Total Income
         document.querySelectorAll('.income-value').forEach((input) => {
@@ -58,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             totalExpenses += expenseValue;
 
-            if (expenseValue > 0) { // Only add positive expenses to the chart
+            if (expenseValue > 0) {
                 expenseDataForChart.push({ label: expenseName, value: expenseValue });
             }
         });
@@ -80,22 +79,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update the Expense Breakdown Chart
         updateBudgetChart(expenseDataForChart);
-        // console.log('Budget calculation complete. Total Income:', totalIncome, 'Total Expenses:', totalExpenses, 'Net Balance:', netBalance);
-        // console.log('Expense Data for Chart:', expenseDataForChart);
     }
 
     // --- Chart Update Function ---
     function updateBudgetChart(expenseData) {
-        // console.log('Updating chart with data:', expenseData);
         const labels = expenseData.map(item => item.label);
         const data = expenseData.map(item => item.value);
-        const backgroundColors = data.map(() => getRandomColor()); // Generate a color for each slice
+        const backgroundColors = data.map(() => getRandomColor());
 
         if (budgetChart) {
-            budgetChart.destroy(); // Destroy existing chart before creating a new one
+            budgetChart.destroy();
         }
 
-        // Only create chart if there's data to display
         if (data.length > 0) {
             budgetChart = new Chart(budgetChartCanvas, {
                 type: 'pie',
@@ -112,21 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right', // Place legend on the right for better readability
+                            position: 'right',
                         },
                         title: {
                             display: true,
-                            text: 'Expense Breakdown' // Chart title
+                            text: 'Expense Breakdown'
                         }
                     }
                 }
             });
-            // console.log('Budget Chart created.');
         } else {
-            // If no data, ensure canvas is clear or display a message
             const ctx = budgetChartCanvas.getContext('2d');
             ctx.clearRect(0, 0, budgetChartCanvas.width, budgetChartCanvas.height);
-            // console.log('No expense data to display for chart, canvas cleared.');
         }
     }
 
@@ -135,15 +127,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add(`${type}-item`);
 
-        // Added placeholder to text input
         itemDiv.innerHTML = `
             <label>${namePlaceholder}:</label>
             <input type="text" value="${namePlaceholder}">
             <input type="number" class="${type}-value" value="${amountValue}">
-            <button class="remove-btn">Remove</button>
-        `;
+            <button class="remove-btn">${canRemove ? 'Remove' : ''}</button> `;
 
-        // Add event listeners to the new inputs (debounced)
         const nameInput = itemDiv.querySelector('input[type="text"]');
         const valueInput = itemDiv.querySelector('input[type="number"]');
         nameInput.addEventListener('input', debouncedCalculate);
@@ -153,11 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (canRemove) {
             removeButton.addEventListener('click', () => {
                 itemDiv.remove();
-                calculateBudget(); // Recalculate after removing an item
+                calculateBudget();
             });
         } else {
-            removeButton.style.display = 'none'; // Completely hide button for default items
-            removeButton.classList.add('initial-item'); // Add class for styling/identification
+            removeButton.style.display = 'none';
+            removeButton.classList.add('initial-item');
         }
         return itemDiv;
     }
@@ -166,13 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
     addIncomeBtn.addEventListener('click', () => {
         const newItem = createItem('income', 'New Income', 0);
         incomeInputsDiv.appendChild(newItem);
-        calculateBudget(); // Recalculate after adding a new item
+        calculateBudget();
     });
 
     addExpenseBtn.addEventListener('click', () => {
         const newItem = createItem('expense', 'New Expense', 0);
         expenseInputsDiv.appendChild(newItem);
-        calculateBudget(); // Recalculate after adding a new item
+        calculateBudget();
     });
 
     // --- Event Listeners for existing items ---
@@ -187,13 +176,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.remove-btn:not(.initial-item)').forEach(button => {
         button.addEventListener('click', () => {
             button.closest('.income-item, .expense-item').remove();
-            calculateBudget(); // Recalculate after removing
+            calculateBudget();
         });
     });
 
-    // Initial setup of remove button visibility for default items on page load
+    // Initial setup of remove button visibility and content for default items on page load
     document.querySelectorAll('.remove-btn.initial-item').forEach(button => {
-        button.style.display = 'none'; // Hide the button completely
+        button.style.display = 'none';
+        button.textContent = ''; // Ensure no text is visible if hidden
     });
 
     // Initial calculation on page load
